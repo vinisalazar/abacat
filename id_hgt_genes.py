@@ -4,7 +4,9 @@ import pandas as pd
 from Bio import SeqIO
 
 """
-Identify HGT genes from the CompareM output. Extract sequences from .fna or .faa files.
+[ ] Concatenate genes from the CompareM output.
+[x] Filter by HGT value
+[ ] Extract sequences from .fna or .faa files.
 """
 
 def putative_hgt(df_file, out_dir, gc=15.0, bp=300, id_hgt=True):
@@ -21,7 +23,7 @@ def putative_hgt(df_file, out_dir, gc=15.0, bp=300, id_hgt=True):
 
     # Select HGT genes, genome name and number of genes.
     # Cutoff params is gc difference from the complete genome and length of the gene. We don't want short genes (< 100-200)
-    if id_hgt == True:
+    if id_hgt:
         hgt = df[df.GC.apply(lambda x: abs(x - df.GC.iloc[0]) >= gc) & df["Length (bp)"].apply(lambda x: x >= bp)]
         no_genes = hgt.shape[0]
 
