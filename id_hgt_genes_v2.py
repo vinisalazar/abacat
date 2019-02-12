@@ -102,12 +102,7 @@ def filter_hgt(df, gc=10.0, bp=300):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Parse and concatenate results from CompareM codon and DI usage files.\
-
-        Input: directory or file of CompareM results.\
-        Output: Good ol' dataframe.\
-        "
+    parser = argparse.ArgumentParser(description="Parse and concatenate results from CompareM codon and DI usage files. Input: directory or file of CompareM results. Output: Good ol' dataframe.")
     parser.add_argument("-i", "--input", help="Path to input file or input directory of CompareM results.")
     parser.add_argument("-o", "--output", help="Path to output file.", default='codon_usage_parser_out.tsv')
     parser.add_argument("-hgt", "--hgt", help="ID HGT genes based on GC and Length values", default=False)
