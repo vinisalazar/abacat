@@ -44,6 +44,7 @@ def make_dataframe(dict_, out_name):
     df.to_csv(out_name, sep='\t')
     return print(f'Table successfuly created at {out_name}.')
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="A script to put NCBI Assembly reports into a Pandas dataframe.")
     parser.add_argument("-i", "--input", help="Full path to a directory containing assembly reports.")
