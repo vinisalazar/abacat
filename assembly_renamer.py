@@ -117,12 +117,12 @@ if __name__ == "__main__":
         batch_dir = args.batch
         ls_dirs = ls_dirs(batch_dir)
 
-        for dir in ls_dirs:
+        for directory in ls_dirs:
             try:
-                ls_and_decompress(dir)
-                rename_assembly_dir(dir)
+                ls_and_decompress(directory)
+                rename_assembly_dir(directory)
             except:
-                print(f"Error in {dir}.\n")
+                print(f"Error in {directory}.\n")
 
     elif args.input:
         dir = args.input
