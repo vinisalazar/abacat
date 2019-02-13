@@ -85,6 +85,8 @@ if __name__ == "__main__":
     # Handling output dir
     if not args.output_dir:
         output_dir = os.path.join(os.getcwd(), "fetch_hgt_out/")
+    else:
+        output_dir = os.path.join(args.output_dir)  
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
 
