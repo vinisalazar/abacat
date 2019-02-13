@@ -4,7 +4,7 @@ import pandas as pd
 from Bio import SeqIO
 
 
-def process_genes(zip_, seqs_dir, out_dir, blast_type, label=True):
+def process_genes(zip_, seqs_dir, out_dir, blast_type, label=True, verbose=False):
 
     """
     Extracts reads from genes files.
@@ -44,10 +44,22 @@ def process_genes(zip_, seqs_dir, out_dir, blast_type, label=True):
         with open(os.path.join(out_dir, fname), 'w') as f:
             SeqIO.write(parsed_records, f, format="fasta")
 
-        print(f"Wrote {len(genes)} genes to {os.path.join(out_dir, fname)}.")
+        if verbose:
+            print(f"Wrote {len(genes)} genes to {os.path.join(out_dir, fname)}.")
+
+
+# A little helper function for our args. Source: https://stackoverflow.com/questions/15008758/parsing-boolean-values-with-argparse
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(description="Fetch HGT sequences based on\
                                      their contig ID. Input is a dataframe,\
                                      output is directory with seqs.")
@@ -58,6 +70,7 @@ if __name__ == "__main__":
     parser.add_argument("-b", "--blast_type", help="Blast type. Set 'p' for protein.", default="n")
     parser.add_argument("-gc", "--gc_filter", help="GC content difference filter to apply. Leave 0 for none.", default=10.0, type=float)
     parser.add_argument("-l", "--length", help="Length filter to apply. Leave 0 for none", default=300, type=int)
+    parser.add_argument("-v", "--verbose", type=str2bool, nargs='?', const=False, default='false', help="Activate verbose mode.")
 
     args = parser.parse_args()
 
@@ -90,51 +103,6 @@ if __name__ == "__main__":
     print(f"Fetching genes.")
     zip_ = list(zip(df["Gene Id"], df["Organism"]))
 
-    process_genes(zip_, args.seqs_dir, output_dir, blast_type=args.blast_type, label=True)
+    process_genes(zip_, args.seqs_dir, output_dir, blast_type=args.blast_type, label=True, verbose=args.verbose)
 
-    print("Done.")
-
-# in_dir = "/Users/viniWS/Bio/masters/putative_hgt_seqs"
-# out_dir = "/Users/viniWS/Bio/masters/putative_hgt_seqs_format"
-# parse_picked_genes(in_dir, out_dir)
-# file = "/Users/viniWS/Bio/masters/data/final_data/codon_usage_parser_out.tsv"
-#
-# df = pd.read_csv(file, sep="\t")
-#
-# df_ = df[df["Length (bp)"] >= 300]
-#
-# hgt = df_[df_.diff_GC >= 10.0]
-#
-# seqs_dir = "/Users/viniWS/Bio/mussismilia/from_mussismilia/proteomes_predicted/proteomes/"
-#
-# # Test existence
-# os.path.isdir(seqs_dir)
-#
-# out_dir = os.path.join(os.getcwd(), "fetch_hgt_out/")
-#
-# if not os.path.isdir(out_dir):
-#     os.mkdir(out_dir)
-#
-# zip_ = list(zip(hgt["Gene Id"], hgt.Organism))
-# def parse_picked_genes(in_dir, out_dir):
-#     """
-#     Concatenate output of process_genes() into a single fasta file.
-#     Seq record must contain genome name as well.
-#
-#     This is only needed if label = False in process_genes(). Else, we can use !cat.
-#     """
-#     files = os.listdir(in_dir)
-#
-#     for file in files:
-#         genome_name = file.split("_picked_genes.fna")[0]
-#         records = list(SeqIO.parse(os.path.join(in_dir, file), format="fasta"))
-#         for rec in records:
-#             rec.id = rec.id + "-from-" + genome_name
-#
-#         out_file = os.path.join(out_dir, genome_name + "_picked_genes_format.fna")
-#         out_file = os.path.join(out_dir, genome_name + "_picked_genes_format.fna")
-#
-#         with open(out_file, "w") as f:
-#             SeqIO.write(records, f, format="fasta")
-#
-#         print(f"Wrote formatted file to {out_file}.")
+    print(f"Done. Wrote {len(zip_)} sequences to {output_dir}.")
