@@ -3,7 +3,7 @@ import argparse
 import subprocess
 
 
-def call_blastn(query, out_dir, outfmt, db):
+def call_blast(query, out_dir, outfmt, db, blast_type="n"):
     print(f"Blasting {query}.")
 
     if not os.path.isdir(out_dir):
@@ -11,10 +11,12 @@ def call_blastn(query, out_dir, outfmt, db):
 
     out_file = os.path.join(out_dir, os.path.basename(query.split('genomic.fna')[0])+'blast_out.tsv')
 
-    subprocess.call(
-        f"blastn -query {query} -db {db} -outfmt {outfmt} -out {out_file} \
-        -remote -num_alignments 20", shell=True
-        )
+    if str.lower(blast_type) in ("p", "blastp", "protein"):
+        cmd = f"blastp -query {query} -db {db} -outfmt {outfmt} -out {out_file} -num_alignments 20"
+    else:
+        cmd = f"blastn -query {query} -db {db} -outfmt {outfmt} -out {out_file} -num_alignments 20"
+
+    subprocess.call(cmd, shell=True)
 
     return f"File created at {out_file}"
 
@@ -25,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--out_dir", help="Output directory for blast outputs.")
     parser.add_argument("-fmt", "--out_fmt", help="Blast format type.", type=int, default=7)
     parser.add_argument("-db", "--ncbi_db", help="NCBI database to search.", default="nucl")
+    parser.add_argument("-b", "--blast_type", help="Blast types, 'n' for blastn and 'p' for blastp.", default="n")
 
     args = parser.parse_args()
 
@@ -34,7 +37,7 @@ if __name__ == "__main__":
 
     for query in files:
         try:
-            call_blastn(query, args.out_dir, args.out_fmt, args.ncbi_db)
+            call_blast(query, args.out_dir, args.out_fmt, args.ncbi_db, args.blast_type)
         except:
-            print("Error.")
+            raise
             pass
