@@ -15,6 +15,7 @@ def process_genes(zip_, seqs_dir, out_dir, blast_type, label=True):
         blast_type = "p"
 
     genomes = list(set((i[1] for i in zip_)))
+
     print(f"We have {len(zip_)} genes in {len(genomes)} genomes.")
     print(f"Input directory is {seqs_dir}.")
     print(f"Output directory is {out_dir}.")
@@ -29,8 +30,8 @@ def process_genes(zip_, seqs_dir, out_dir, blast_type, label=True):
 
     for genome in genomes:
         records = parse_seq_file(genome)
-        genes = (i[0] for i in zip_ if i[1] == genome)
-        parsed_records = (i for i in records if i.id in genes)
+        genes = [i[0] for i in zip_ if i[1] == genome]
+        parsed_records = [i for i in records if i.id in genes]
         if label:  # Label the read with the genome name
             for n in parsed_records:
                 n.id = n.id + "~" + genome
@@ -44,30 +45,6 @@ def process_genes(zip_, seqs_dir, out_dir, blast_type, label=True):
             SeqIO.write(parsed_records, f, format="fasta")
 
         print(f"Wrote {len(genes)} genes to {os.path.join(out_dir, fname)}.")
-
-
-def parse_picked_genes(in_dir, out_dir):
-    """
-    Concatenate output of process_genes() into a single fasta file.
-    Seq record must contain genome name as well.
-
-    This is only needed if label = False in process_genes(). Else, we can use !cat.
-    """
-    files = os.listdir(in_dir)
-
-    for file in files:
-        genome_name = file.split("_picked_genes.fna")[0]
-        records = list(SeqIO.parse(os.path.join(in_dir, file), format="fasta"))
-        for rec in records:
-            rec.id = rec.id + "-from-" + genome_name
-
-        out_file = os.path.join(out_dir, genome_name + "_picked_genes_format.fna")
-        out_file = os.path.join(out_dir, genome_name + "_picked_genes_format.fna")
-
-        with open(out_file, "w") as f:
-            SeqIO.write(records, f, format="fasta")
-
-        print(f"Wrote formatted file to {out_file}.")
 
 
 if __name__ == "__main__":
@@ -113,7 +90,8 @@ if __name__ == "__main__":
     print(f"Fetching genes.")
     zip_ = list(zip(df["Gene Id"], df["Organism"]))
 
-    process_genes(zip_, args.seqs_dir, output_dir, blast_type=args.blast_type ,label=True)
+    process_genes(zip_, args.seqs_dir, output_dir, blast_type=args.blast_type, label=True)
+
     print("Done.")
 
 # in_dir = "/Users/viniWS/Bio/masters/putative_hgt_seqs"
@@ -138,3 +116,25 @@ if __name__ == "__main__":
 #     os.mkdir(out_dir)
 #
 # zip_ = list(zip(hgt["Gene Id"], hgt.Organism))
+# def parse_picked_genes(in_dir, out_dir):
+#     """
+#     Concatenate output of process_genes() into a single fasta file.
+#     Seq record must contain genome name as well.
+#
+#     This is only needed if label = False in process_genes(). Else, we can use !cat.
+#     """
+#     files = os.listdir(in_dir)
+#
+#     for file in files:
+#         genome_name = file.split("_picked_genes.fna")[0]
+#         records = list(SeqIO.parse(os.path.join(in_dir, file), format="fasta"))
+#         for rec in records:
+#             rec.id = rec.id + "-from-" + genome_name
+#
+#         out_file = os.path.join(out_dir, genome_name + "_picked_genes_format.fna")
+#         out_file = os.path.join(out_dir, genome_name + "_picked_genes_format.fna")
+#
+#         with open(out_file, "w") as f:
+#             SeqIO.write(records, f, format="fasta")
+#
+#         print(f"Wrote formatted file to {out_file}.")
