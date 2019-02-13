@@ -42,7 +42,7 @@ def label_genome_row(input_file, print=True):
 
     genome_name = os.path.basename(input_file).split('.genomic')[0]
 
-    os.system(f"sed -i -e 's/\<complete genome\>/{genome_name}/g' {input_file}")
+    os.system(f"sed -i -e 's/<complete genome>/{genome_name}/g' {input_file}")
 
     if print:
         print(f"Added genome label to {input_file}")
@@ -50,7 +50,7 @@ def label_genome_row(input_file, print=True):
     return None
 
 
-def concatenate_input_files(input_files, output_file, preprocessed=False, hgt=False):
+def concatenate_input_files(input_files, output_file, preprocessed=True, hgt=False):
 
     if not preprocessed:
         print(f"Adding labels to {len(input_files)} files.")
@@ -58,8 +58,9 @@ def concatenate_input_files(input_files, output_file, preprocessed=False, hgt=Fa
             label_genome_row(n, print=False)
 
     with open(input_files[0]) as f:
-        header = f.readline()
-        header = "\t".join(header.split("\t")[:-1] + ["Organism", "diff_GC\n"])
+        header = f.readline().strip()
+        header = header + "\tOrganism\tdiff_GC\n"
+#        import pdb; pdb.set_trace()
 
     print(f"Concatenating {len(input_files)} files. Please be patient.")
     with open(f"{output_file}", "w") as f:
