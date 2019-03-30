@@ -62,11 +62,14 @@ def prodigal(file, output=None):
 
     # Create default output format
     if not output:
-        output = os.path.basename(file)
-        output = os.path.splitext(output)[0]
+        output = os.path.splitext(file)[0]
+    else:
+        output = output
 
-    os.mkdir(output)
-    output = os.path.join(output, output)
+    if not os.path.isdir(output):
+        os.mkdir(output)
+
+    output = os.path.join(output, output.split('/')[-1])
 
     prodigal = subprocess.call(
         f"prodigal -i {file} -a {output + '_proteins.faa'} \
@@ -77,15 +80,14 @@ def prodigal(file, output=None):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description=
-    """
+    parser = argparse.ArgumentParser(description="""
     A script to call Prodigal to predict both genes and proteins.\n
 
     Input:\n
     File or folder with contigs in fasta or fna format.\n
 
     Output:\n
-    Separate files or folders with genes and proteins (default) or only one of each.\n
+    Separate files or folders with genes and proteins (default) \n
     Includes log and stats file (errors, exceptions, how many genes and proteins)\n
     When output is multiple, includes single log file.\n
 
@@ -94,7 +96,8 @@ if __name__ == "__main__":
         python prodigal.py -i contigs/\n
         python prodigal.py -i contigs.fasta -o proteins.faa\n
     """
-)
+    )
+
     parser.add_argument("-i", "--input", help="Input file. Must be a valid\
                         FASTA file.")
     parser.add_argument("-o", "--output", help="Path to output folder",
