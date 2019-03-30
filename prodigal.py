@@ -16,8 +16,10 @@ Example usage:
 """
 
 import os
+import sys
 import argparse
 import subprocess
+from Bio import SeqIO
 
 
 def get_input(input_path):
@@ -36,30 +38,72 @@ def get_input(input_path):
         raise FileNotFoundError
 
 
-def prodigal(file, type="np", output=None, directory=None):
+def prodigal(file, output=None):
     """
     Calls Prodigal on an input file.
 
-    Input:
+    Input
     .fasta or .fna file.
-    Output:
-    Genes (.fna) and proteins (.faa) files.
+    Output
+    Genes (.fna), proteins (.faa), gene scores (.txt), gbk file (.gbk).
     """
 
+    # Check if it is a valid fasta file.
+    # https://stackoverflow.com/questions/44293407/how-can-i-check-whether-a-given-file-is-fasta
+    def is_fasta(file):
+        with open(file) as handle:
+            fasta = SeqIO.parse(handle, "fasta")
+            return any(fasta)
+
+    if not is_fasta(file):
+        raise Exception(
+            "Your file is not valid. Please check if it is a valid FASTA file."
+        )
+
+    # Create default output format
     if not output:
         output = os.path.basename(file)
         output = os.path.splitext(output)[0]
 
-    prodigal = subprocess.Popen(
-        f"prodigal -i {file} -a {file_name + '_proteins.faa'} \
-        -d {file_name + '_genes.fna'} -o {file_name + '_out.txt'} \
-        -s {file_name + '_scores.txt'}", shell=True, stdout=subprocess.PIPE
+    os.mkdir(output)
+    output = os.path.join(output, output)
+
+    prodigal = subprocess.call(
+        f"prodigal -i {file} -a {output + '_proteins.faa'} \
+        -d {output + '_genes.fna'} -o {output + '_cds.gbk'} \
+        -s {output + '_scores.txt'}", shell=True
     )
 
-    # TRY TO FIX THIS LATER
-    # redirection tip came from here
-    # https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python/
-    # prodigal_output = prodigal.communicate()[0]
-    #
-    # with open(f"{file_name}_prodigal.log", "w") as f:
-    #     f.write(str(prodigal_output))
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description=
+    """
+    A script to call Prodigal to predict both genes and proteins.\n
+
+    Input:\n
+    File or folder with contigs in fasta or fna format.\n
+
+    Output:\n
+    Separate files or folders with genes and proteins (default) or only one of each.\n
+    Includes log and stats file (errors, exceptions, how many genes and proteins)\n
+    When output is multiple, includes single log file.\n
+
+    Example usage:\n
+
+        python prodigal.py -i contigs/\n
+        python prodigal.py -i contigs.fasta -o proteins.faa\n
+    """
+)
+    parser.add_argument("-i", "--input", help="Input file. Must be a valid\
+                        FASTA file.")
+    parser.add_argument("-o", "--output", help="Path to output folder",
+                        default="")
+
+    args = parser.parse_args()
+
+    if not args.input:
+        parser.print_help()
+        sys.exit(0)
+
+    prodigal(args.input, args.output)
