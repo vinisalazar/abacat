@@ -17,6 +17,7 @@ Example usage:
 
 import os
 import sys
+import time
 import argparse
 import subprocess
 from Bio import SeqIO
@@ -38,7 +39,7 @@ def get_input(input_path):
         raise FileNotFoundError
 
 
-def prodigal(file, output=None):
+def prodigal(file, output):
     """
     Calls Prodigal on an input file.
 
@@ -74,32 +75,19 @@ def prodigal(file, output=None):
     prodigal = subprocess.call(
         f"prodigal -i {file} -a {output + '_proteins.faa'} \
         -d {output + '_genes.fna'} -o {output + '_cds.gbk'} \
-        -s {output + '_scores.txt'}", shell=True
+        -s {output + '_scores.txt'} -q", shell=True
     )
 
 
 if __name__ == "__main__":
 
+    start = time.time()
+
     parser = argparse.ArgumentParser(description="""
-    A script to call Prodigal to predict both genes and proteins.\n
+    A script to call Prodigal to predict both genes and proteins.
+    """)
 
-    Input:\n
-    File or folder with contigs in fasta or fna format.\n
-
-    Output:\n
-    Separate files or folders with genes and proteins (default) \n
-    Includes log and stats file (errors, exceptions, how many genes and proteins)\n
-    When output is multiple, includes single log file.\n
-
-    Example usage:\n
-
-        python prodigal.py -i contigs/\n
-        python prodigal.py -i contigs.fasta -o proteins.faa\n
-    """
-    )
-
-    parser.add_argument("-i", "--input", help="Input file. Must be a valid\
-                        FASTA file.")
+    parser.add_argument("-i", "--input", help="Input FASTA file or dir containing fasta files")
     parser.add_argument("-o", "--output", help="Path to output folder",
                         default="")
 
@@ -109,4 +97,26 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(0)
 
-    prodigal(args.input, args.output)
+    input = get_input(args.input)
+
+    if input[1] == "file":
+        print(f"Starting script. Your input file is {input[0]}.")
+        prodigal(input[0], args.output)
+
+    elif input[1] == "dir":
+        dir = input[0]
+        files = os.listdir(dir)
+        for i in files:
+            if os.path.isfile(os.path.join(dir, i)):
+                try:
+                    prodigal(os.path.join(dir, i), "")
+                except Exception as err:
+                    print(f"{i} is an invalid FASTA file.")
+                    with open(os.path.splitext(os.path.join(dir, i))[0] + ".err", "w") as f:
+                        f.write(f"{i} is an invalid FASTA file.")
+                    pass
+            else:
+                pass  # Ignore if not a file
+
+    end = time.time()
+    print(f"Done. Took {end - start}.")
