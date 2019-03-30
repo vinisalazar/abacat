@@ -36,7 +36,7 @@ def get_input(input_path):
         raise FileNotFoundError
 
 
-def prodigal(file, type="np"):
+def prodigal(file, type="np", output=None, directory=None):
     """
     Calls Prodigal on an input file.
 
@@ -46,18 +46,20 @@ def prodigal(file, type="np"):
     Genes (.fna) and proteins (.faa) files.
     """
 
-    file_name = os.path.basename(file)
-    file_name = os.path.splitext(file_name)[0]
+    if not output:
+        output = os.path.basename(file)
+        output = os.path.splitext(output)[0]
 
     prodigal = subprocess.Popen(
         f"prodigal -i {file} -a {file_name + '_proteins.faa'} \
-        -d {file_name + '_genes.fna'} -o {file_name + 'out.txt'} \
+        -d {file_name + '_genes.fna'} -o {file_name + '_out.txt'} \
         -s {file_name + '_scores.txt'}", shell=True, stdout=subprocess.PIPE
     )
 
+    # TRY TO FIX THIS LATER
     # redirection tip came from here
     # https://eli.thegreenplace.net/2015/redirecting-all-kinds-of-stdout-in-python/
-    prodigal_output = prodigal.communicate()[0]
-
-    with open(f"{file_name}_prodigal.log", "w") as f:
-        f.write(prodigal_output)
+    # prodigal_output = prodigal.communicate()[0]
+    #
+    # with open(f"{file_name}_prodigal.log", "w") as f:
+    #     f.write(str(prodigal_output))
