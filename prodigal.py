@@ -98,14 +98,14 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(0)
 
-    input = get_input(args.input)
+    input = args.input
 
-    if input[1] == "file":
+    if os.path.isfile(input):
         print(f"Starting script. Your input file is {input[0]}.")
         prodigal(input[0], args.output)
 
-    elif input[1] == "dir":
-        dir = input[0]
+    elif os.path.isdir(input):
+        dir = input
         files = os.listdir(dir)
         files = [os.path.join(dir, i) for i in files]
         files = [i for i in files if os.path.isfile(i)]
@@ -127,8 +127,11 @@ if __name__ == "__main__":
                 print(f"Error for {i}. Invalid FASTA file.")
                 failure += 1
                 pass
+    else:
+        raise FileNotFoundError
 
     end = time.time()
     delta = str(datetime.timedelta(seconds=end - start))
+
     print("\n")
     print(f"Done. {success} assemblies processed. {failure} errors. Took {delta}.")
