@@ -21,10 +21,21 @@ import time
 import argparse
 import datetime
 import subprocess
-from helper_functions import is_fasta
+from helper_functions import is_fasta, is_fasta_wrapper
 
 
-def prodigal(file, output):
+def is_fasta_wrapper(func):
+    def wrapper(*args, **kwargs):
+        if not is_fasta(args[0]):
+            raise Exception(
+                "Your file is not valid. Please check if it is a valid FASTA file."
+            )
+        func(args(*args, **kwargs))
+    return wrapper
+
+
+@is_fasta_wrapper
+def prodigal(file, output=None):
     """
     Calls Prodigal on an input file.
 
@@ -32,12 +43,18 @@ def prodigal(file, output):
     Valid FASTA file.
     Output:
     Genes (.fna), proteins (.faa), gene scores (.txt), gbk file (.gbk).
+
+    Example:
+
+        from prodigal import prodigal
+        prodigal("contigs.fasta", "output_folder/")
+
     """
 
-    if not is_fasta(file):
-        raise Exception(
-            "Your file is not valid. Please check if it is a valid FASTA file."
-        )
+    # if not is_fasta(file):
+    #     raise Exception(
+    #         "Your file is not valid. Please check if it is a valid FASTA file."
+    #     )
 
     # Create default output format
     if not output:
