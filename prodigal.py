@@ -24,18 +24,8 @@ import subprocess
 from helper_functions import is_fasta, is_fasta_wrapper
 
 
-def is_fasta_wrapper(func):
-    def wrapper(*args, **kwargs):
-        if not is_fasta(args[0]):
-            raise Exception(
-                "Your file is not valid. Please check if it is a valid FASTA file."
-            )
-        func(args(*args, **kwargs))
-    return wrapper
-
-
 @is_fasta_wrapper
-def prodigal(file, output=None):
+def prodigal(file, output=None, quiet=False):
     """
     Calls Prodigal on an input file.
 
@@ -51,27 +41,25 @@ def prodigal(file, output=None):
 
     """
 
-    # if not is_fasta(file):
-    #     raise Exception(
-    #         "Your file is not valid. Please check if it is a valid FASTA file."
-    #     )
-
-    # Create default output format
     if not output:
-        output = os.path.splitext(file)[0]
+        output = os.path.splitext(file)[0] + "_prodigal"
     else:
-        output = os.path.join(output, os.path.basename(os.path.splitext(file)[0]))
+        output = os.path.join(output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal")
 
     if not os.path.isdir(output):
         os.mkdir(output)
 
     output = os.path.join(output, output.split('/')[-1])
 
-    prodigal = subprocess.call(
-        f"prodigal -i {file} -a {output + '_proteins.faa'} \
-        -d {output + '_genes.fna'} -o {output + '_cds.gbk'} \
-        -s {output + '_scores.txt'} -q", shell=True
-    )
+    cmd = f"prodigal -i {file} -a {output + '_proteins.faa'} \
+            -d {output + '_genes.fna'} -o {output + '_cds.gbk'} \
+            -s {output + '_scores.txt'}"
+
+    # This suppresses console output from Prodigal
+    if quiet:
+        cmd += " -q"
+
+    prodigal = subprocess.call(cmd, shell=True)
 
 
 if __name__ == "__main__":
@@ -83,8 +71,7 @@ if __name__ == "__main__":
     """)
 
     parser.add_argument("-i", "--input", help="Input FASTA file or dir containing fasta files")
-    parser.add_argument("-o", "--output", help="Path to output folder",
-                        default="")
+    parser.add_argument("-o", "--output", help="Path to output folder", default="")
 
     args = parser.parse_args()
 
@@ -114,11 +101,11 @@ if __name__ == "__main__":
         for i in files:
             try:
                 print(f"Running Prodigal for {i}.")
-                prodigal(i, args.output)
+                prodigal(i, args.output, quiet=True)
                 if os.path.isdir(os.path.splitext(i)[0]):
                     success += 1
             except Exception as err:
-                print(f"Error for {i}. Invalid FASTA file.")
+                print(f"Error for {i}. Please check if it is a valid FASTA file.")
                 failure += 1
                 pass
     else:
