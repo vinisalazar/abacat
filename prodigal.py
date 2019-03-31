@@ -12,7 +12,7 @@ When output is multiple, includes single log file.
 Example usage:
 
     python prodigal.py -i contigs/
-    python prodigal.py -i contigs.fasta -o proteins.faa -t n -l log_stats.txt
+    python prodigal.py -i contigs.fasta
 """
 
 import os
@@ -111,21 +111,21 @@ if __name__ == "__main__":
         files = [i for i in files if os.path.isfile(i)]
 
         print("\n")
-        print(f"Starting script. You have {len(files)} to be processed in {dir}.\n")
+        print(f"Starting script. You have {len(files)} files to be processed in {dir}:\n")
         print("\n".join(files), "\n")
+
+        success = 0
+        failure = 0
 
         for i in files:
             try:
-                success = 0
-                failure = 0
                 print(f"Running Prodigal for {i}.")
                 prodigal(i, "")
-                if os.path.isdir(i):
+                if os.path.isdir(os.path.splitext(i)[0]):
                     success += 1
-                else:
-                    failure += 1
             except Exception as err:
                 print(f"Error for {i}. Invalid FASTA file.")
+                failure += 1
                 pass
 
     end = time.time()
