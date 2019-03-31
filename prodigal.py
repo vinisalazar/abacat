@@ -24,22 +24,6 @@ import subprocess
 from Bio import SeqIO
 
 
-def get_input(input_path):
-    """
-    Checks if the input is a file or directory.
-    Returns the file path and type.
-    """
-    if os.path.isfile(input_path):
-        return os.path.abspath(input_path), "file"
-
-    elif os.path.isdir(input_path):
-        return os.path.abspath(input_path), "dir"
-
-    else:
-        # Change this to return None?
-        raise FileNotFoundError
-
-
 def prodigal(file, output):
     """
     Calls Prodigal on an input file.
