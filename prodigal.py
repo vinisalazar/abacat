@@ -19,6 +19,7 @@ import os
 import sys
 import time
 import argparse
+import datetime
 import subprocess
 from Bio import SeqIO
 
@@ -106,17 +107,28 @@ if __name__ == "__main__":
     elif input[1] == "dir":
         dir = input[0]
         files = os.listdir(dir)
+        files = [os.path.join(dir, i) for i in files]
+        files = [i for i in files if os.path.isfile(i)]
+
+        print("\n")
+        print(f"Starting script. You have {len(files)} to be processed in {dir}.\n")
+        print("\n".join(files), "\n")
+
         for i in files:
-            if os.path.isfile(os.path.join(dir, i)):
-                try:
-                    prodigal(os.path.join(dir, i), "")
-                except Exception as err:
-                    print(f"{i} is an invalid FASTA file.")
-                    with open(os.path.splitext(os.path.join(dir, i))[0] + ".err", "w") as f:
-                        f.write(f"{i} is an invalid FASTA file.")
-                    pass
-            else:
-                pass  # Ignore if not a file
+            try:
+                success = 0
+                failure = 0
+                print(f"Running Prodigal for {i}.")
+                prodigal(i, "")
+                if os.path.isdir(i):
+                    success += 1
+                else:
+                    failure += 1
+            except Exception as err:
+                print(f"Error for {i}. Invalid FASTA file.")
+                pass
 
     end = time.time()
-    print(f"Done. Took {end - start}.")
+    delta = str(datetime.timedelta(seconds=end - start))
+    print("\n")
+    print(f"Done. {success} assemblies processed. {failure} errors. Took {delta}.")
