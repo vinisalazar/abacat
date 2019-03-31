@@ -21,25 +21,18 @@ import time
 import argparse
 import datetime
 import subprocess
-from Bio import SeqIO
+from helper_functions import is_fasta
 
 
 def prodigal(file, output):
     """
     Calls Prodigal on an input file.
 
-    Input
-    .fasta or .fna file.
-    Output
+    Input:
+    Valid FASTA file.
+    Output:
     Genes (.fna), proteins (.faa), gene scores (.txt), gbk file (.gbk).
     """
-
-    # Check if it is a valid fasta file.
-    # https://stackoverflow.com/questions/44293407/how-can-i-check-whether-a-given-file-is-fasta
-    def is_fasta(file):
-        with open(file) as handle:
-            fasta = SeqIO.parse(handle, "fasta")
-            return any(fasta)
 
     if not is_fasta(file):
         raise Exception(
