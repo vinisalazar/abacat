@@ -50,7 +50,7 @@ def prodigal(file, output):
     if not output:
         output = os.path.splitext(file)[0]
     else:
-        output = output
+        output = os.path.join(output, os.path.basename(os.path.splitext(file)[0]))
 
     if not os.path.isdir(output):
         os.mkdir(output)
@@ -89,13 +89,12 @@ if __name__ == "__main__":
         prodigal(input[0], args.output)
 
     elif os.path.isdir(input):
-        dir = input
-        files = os.listdir(dir)
-        files = [os.path.join(dir, i) for i in files]
+        files = os.listdir(input)
+        files = [os.path.join(input, i) for i in files]
         files = [i for i in files if os.path.isfile(i)]
 
         print("\n")
-        print(f"Starting script. You have {len(files)} files to be processed in {dir}:\n")
+        print(f"Starting script. You have {len(files)} files to be processed in {input}:\n")
         print("\n".join(files), "\n")
 
         success = 0
@@ -104,7 +103,7 @@ if __name__ == "__main__":
         for i in files:
             try:
                 print(f"Running Prodigal for {i}.")
-                prodigal(i, "")
+                prodigal(i, args.output)
                 if os.path.isdir(os.path.splitext(i)[0]):
                     success += 1
             except Exception as err:
