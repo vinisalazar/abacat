@@ -89,6 +89,7 @@ if __name__ == "__main__":
         prodigal(input[0], args.output)
 
     elif os.path.isdir(input):
+
         files = os.listdir(input)
         files = [os.path.join(input, i) for i in files]
         files = [i for i in files if os.path.isfile(i)]
