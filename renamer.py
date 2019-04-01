@@ -26,7 +26,7 @@ def ls_and_decompress(assembly_dir, unzip=True):
     """
     files = glob.glob(os.path.join(assembly_dir, '*'))
     if unzip:
-        print(f"Decompressing files in {dir}.")
+        print(f"Decompressing files in {assembly_dir}.")
         for file in files:
             if file.endswith('.gz'):
                 with gzip.open(file, 'r') as f_in, open(file[:-3], 'wb') as f_out:
@@ -89,6 +89,7 @@ def rename_assembly_dir(assembly_dir):
     Renames files in assembly dir.
     """
     print(f"Renaming files in {assembly_dir}.\n")
+    assembly_dir = os.path.abspath(assembly_dir)
     fname, ass_name, org_name, ass_acc = get_assembly_ids(assembly_dir)
     preffix = '_'.join([ass_acc, ass_name])
     files = ls_and_decompress(assembly_dir, unzip=False)
@@ -101,7 +102,8 @@ def rename_assembly_dir(assembly_dir):
             new_file = '_'.join([fname, os.path.basename(file)])
             os.rename(file, os.path.join(assembly_dir, new_file))
 
-    os.rename(assembly_dir, assembly_dir.replace(ass_acc, org_name))
+    os.rename(assembly_dir, os.path.join(os.path.dirname(assembly_dir),
+        org_name + "_" + ass_name))
 
     # TODO: Improve this return statement.
     return "Done."
