@@ -38,6 +38,8 @@ def get_base_name(report):
 
 
 def make_dataframe(dict_, out_name):
+    if not out_name:
+        out_name = "assembly_reports.csv"
     df = pd.DataFrame(dict_).T
     df['AssemblyFullName'] = df.index
     df.reset_index(level=0, inplace=True, drop=True)
