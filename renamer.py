@@ -1,30 +1,37 @@
-import os
-import sys
-import glob
-import gzip
-import shutil
 import argparse
+import gzip
+import os
+import shutil
+import sys
 
 """
-Rename files in Assembly Directory Structure.
+A script to rename files in assembly directory structure.
+
+Input:
+One or more assembly directories.
+Output:
+One or more assembly directories with the directory and all files renamed.
 """
-
-
-def ls_dirs(batch_dir, suffix='GC*/'):
-    """
-    Globs a directory looking for assembly directories, that usually start with
-    'GCA' or 'GCF'. Other suffixes can be determined with suffix arg.
-    """
-    list_dirs = glob.glob(os.path.join(batch_dir, suffix))
-    return list_dirs
 
 
 def ls_and_decompress(assembly_dir, unzip=True):
     """
-    Globs an assembly directory to get the file names.
-    Unzip option decompresses any .gz files in the directory.
+    This function lists and decompresses the files in the assembly directory.
+
+    Input:
+    Assembly directory.
+    Returns:
+    List of files, decompressed.
     """
-    files = glob.glob(os.path.join(assembly_dir, '*'))
+    # I prefer dealing with absolute paths.
+    assembly_dir = os.path.abspath(assembly_dir)
+
+    # Quick error handling
+    if not os.path.isdir(assembly_dir):
+        raise FileNotFoundError
+
+    files = [os.path.join(assembly_dir, file) for file in os.listdir(assembly_dir)]
+
     if unzip:
         print(f"Decompressing files in {assembly_dir}.")
         for file in files:
@@ -34,17 +41,25 @@ def ls_and_decompress(assembly_dir, unzip=True):
                 os.remove(file)
 
         # Refresh the 'files' var with unzipped names
-        files = glob.glob(os.path.join(assembly_dir, '*'))
+        files = [os.path.join(assembly_dir, file) for file in os.listdir(assembly_dir)]
 
     return files
 
 
-def get_assembly_ids(assembly_dir, gb=True):
+def parse_assembly_report(assembly_dir):
     """
-    Extracts file from the assembly report file.
-    Return tuple containing (filename, assembly_name, organism_name, assembly_accession)
+    Parses information from assembly_report. Uses information to rename.
+
+    Input:
+    Assembly directory.
+
+    Returns:
+    Tuple containing (organism_name, assembly_name, assembly_accession)
+
+    TODO: Improve this function. See RefSeq/GenBank use cases. Major error handling.
     """
     files = ls_and_decompress(assembly_dir, unzip=False)
+
     for file in files:
         if file.endswith("assembly_report.txt"):
             assembly_report = file
@@ -52,84 +67,101 @@ def get_assembly_ids(assembly_dir, gb=True):
     if not assembly_report:
         return "Assembly report not found, please check your assembly directory.\n"
 
-    fname = []
     with open(assembly_report) as report:
         r = [line for line in report.readlines()]
         for line in r:
             if line.startswith('# Assembly name:'):
                 assembly_name = line.strip().split(':')[1].strip()
-                assembly_name = assembly_name.replace(" ", "_")
-                fname.append(assembly_name)
 
             if line.startswith('# Organism name:'):
-                organism_name = line.strip().split(':')[1].strip()
-                organism_name = organism_name.replace(" (cyanobacteria)", "")
-                organism_name = organism_name.replace(" ", "_")
-                fname.append(organism_name)
+                organism_name = "_".join(line.strip().split(':')[1].strip().split())
 
             if line.startswith("# GenBank assembly accession:"):
                 assembly_accession = line.strip().split(":")[1].strip()
+                if "GCF" in assembly_report:
+                    assembly_accession = assembly_accession.replace("GCA", "GCF")
 
-            if line.startswith("# RefSeq assembly accession:"):
-                assembly_accession = line.strip().split(":")[1].strip()
-                if gb:
-                    assembly_accession = assembly_accession.replace('F', 'A')
-
-            elif 'assembly accession' in line:
-                assembly_accession = line.strip().split(":")[1].strip()
-
-        # The organism name comes first.
-        fname = fname[1] + '_' + fname[0]
-
-        return fname, assembly_name, organism_name, assembly_accession
+    return assembly_name, organism_name, assembly_accession
 
 
-def rename_assembly_dir(assembly_dir):
+def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_name=3):
     """
-    Renames files in assembly dir.
+    Use information from the assembly report to rename our directory and files.
+
+    Input:
+    Assembly directory.
+
+    Returns:
+    Renamed assembly directory and files.
+
+    rename:
+    How the file should be renamed.
+
+    parse_organism_name INT:
+    Length of organism name epithets.
+
+    Todo: Add renaming options, like assembly + accession, organism + accession.
+          Maybe write a helper function to do this.
     """
-    print(f"Renaming files in {assembly_dir}.\n")
     assembly_dir = os.path.abspath(assembly_dir)
-    fname, ass_name, org_name, ass_acc = get_assembly_ids(assembly_dir)
-    preffix = '_'.join([ass_acc, ass_name])
+
+    print(f"Renaming files in {assembly_dir}\n")
+
+    assembly_name, organism_name, assembly_accession = parse_assembly_report(assembly_dir)
+    preffix = "_".join([assembly_accession, assembly_name])
     files = ls_and_decompress(assembly_dir, unzip=False)
+
+    # This code is unnecessary for now, but it will help with the renaming options later
+    if "organism" in rename:
+        if len(organism_name.split("_")) > parse_organism_name:
+            organism_name = organism_name.split("_")[:parse_organism_name]
+            organism_name = "_".join(organism_name)
+
+        fname = "_".join([organism_name, assembly_name])
+
+    # These characters will be removed from the final filename.
+    # This is because they might interefere with posix path.
+    bad_chars = ("\\/.?()[]{}")
+    for char in bad_chars:
+        fname = fname.replace(char, "")
 
     for file in files:
         if preffix in os.path.basename(file):
             new_file = os.path.basename(file).replace(preffix, fname)
             os.rename(file, os.path.join(assembly_dir, new_file))
-        else:
-            new_file = '_'.join([fname, os.path.basename(file)])
-            os.rename(file, os.path.join(assembly_dir, new_file))
 
-    os.rename(assembly_dir, os.path.join(os.path.dirname(assembly_dir),
-        org_name + "_" + ass_name))
-
-    # TODO: Improve this return statement.
-    return "Done."
+    os.rename(assembly_dir, os.path.join(os.path.dirname(assembly_dir), fname))
+    return os.path.join(os.path.dirname(assembly_dir), fname)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Renames assembly directories.")
-    parser.add_argument("-i", "--input", help="A single assembly directory to be renamed.")
-    parser.add_argument("-b", "--batch", help="Directory containing multiple directories to be renamed.")
-    # TODO: Add verbose argument.
+    parser.add_argument("-i", "--input", help="Assembly directory or directory containing multiple assembly directories.")
     args = parser.parse_args()
-    if args.batch:
-        batch_dir = args.batch
-        ls_dirs = ls_dirs(batch_dir)
 
-        for directory in ls_dirs:
-            try:
-                ls_and_decompress(directory)
-                rename_assembly_dir(directory)
-            except:
-                print(f"Error in {directory}.\n")
+    if not args.input:
+        parser.print_help()
+        sys.exit(0)
 
-    elif args.input:
-        dir = args.input
-        ls_and_decompress(dir)
-        rename_assembly_dir(dir)
+    # Check if it is a single assembly directory or multiple:
+    if "annotation_hashes.txt" in os.listdir(args.input):
+        ls_and_decompress(args.input)
+        rename_assembly(args.input)
 
     else:
-        parser.print_help()
+        directories = os.listdir(args.input)
+        success, failure = 0, 0
+        for directory in directories:
+            try:
+                directory = os.path.join(args.input, directory)
+                ls_and_decompress(directory)
+                new_dir = rename_assembly(directory)
+                if os.path.isdir(new_dir):
+                    success += 1
+
+            except Exception:
+                print(f"Something went wrong with {directory}. Please confirm if it is a proper assembly directory.")
+                failure += 1
+                pass
+
+        print(f"Done. You successfully renamed {success} directories and had {failure} failures.")
