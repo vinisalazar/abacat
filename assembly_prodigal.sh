@@ -1,13 +1,13 @@
 echo "Starting AssemblyTools."
 
 echo "Removing old files."
-rm -rf ncbi-genomes-2018-12-20
+rm -rf /Users/viniWS/Bio/masters/test_data/ncbi/ncbi-genomes-2018-12-20
 
 echo "Decompressing new files."
-tar zxf genome_assemblies.tar
+tar zxf /Users/viniWS/Bio/masters/test_data/ncbi/genome_assemblies.tar
 
 echo "Renaming files."
-python /Users/viniWS/Bio/masters/scripts/assembly_tools/renamer.py -b $1 
+python /Users/viniWS/Bio/masters/scripts/assembly_tools/renamer.py -b $1
 
 echo "Moving genomic files to folder."
 rm -rf genomic_fna/
