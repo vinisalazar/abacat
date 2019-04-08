@@ -121,7 +121,7 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
 
     # These characters will be removed from the final filename.
     # This is because they might interefere with posix path.
-    bad_chars = ("\\/.?()[]{}")
+    bad_chars = ("\\/.?()[]{}#<>º´'")
     for char in bad_chars:
         fname = fname.replace(char, "")
 
