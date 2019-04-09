@@ -35,8 +35,8 @@ def ls_and_decompress(assembly_dir, unzip=True):
     if unzip:
         print(f"Decompressing files in {assembly_dir}.")
         for file in files:
-            if file.endswith('.gz'):
-                with gzip.open(file, 'r') as f_in, open(file[:-3], 'wb') as f_out:
+            if file.endswith(".gz"):
+                with gzip.open(file, "r") as f_in, open(file[:-3], "wb") as f_out:
                     shutil.copyfileobj(f_in, f_out)
                 os.remove(file)
 
@@ -70,11 +70,11 @@ def parse_assembly_report(assembly_dir):
     with open(assembly_report) as report:
         r = [line for line in report.readlines()]
         for line in r:
-            if line.startswith('# Assembly name:'):
-                assembly_name = line.strip().split(':')[1].strip()
+            if line.startswith("# Assembly name:"):
+                assembly_name = line.strip().split(":")[1].strip()
 
-            if line.startswith('# Organism name:'):
-                organism_name = "_".join(line.strip().split(':')[1].strip().split())
+            if line.startswith("# Organism name:"):
+                organism_name = "_".join(line.strip().split(":")[1].strip().split())
 
             if line.startswith("# GenBank assembly accession:"):
                 assembly_accession = line.strip().split(":")[1].strip()
@@ -107,7 +107,9 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
 
     print(f"Renaming files in {assembly_dir}\n")
 
-    assembly_name, organism_name, assembly_accession = parse_assembly_report(assembly_dir)
+    assembly_name, organism_name, assembly_accession = parse_assembly_report(
+        assembly_dir
+    )
     preffix = "_".join([assembly_accession, assembly_name])
     files = ls_and_decompress(assembly_dir, unzip=False)
 
@@ -123,7 +125,7 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
 
     # These characters will be removed from the final filename.
     # This is because they might interefere with posix path.
-    bad_chars = ("\\/.?()[]{}#<>º´'")
+    bad_chars = "\\/.?()[]{}#<>º´'"
     for char in bad_chars:
         fname = fname.replace(char, "")
 
@@ -140,7 +142,11 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Renames assembly directories.")
-    parser.add_argument("-i", "--input", help="Assembly directory or directory containing multiple assembly directories.")
+    parser.add_argument(
+        "-i",
+        "--input",
+        help="Assembly directory or directory containing multiple assembly directories.",
+    )
     args = parser.parse_args()
 
     if not args.input:
@@ -164,8 +170,12 @@ if __name__ == "__main__":
                     success += 1
 
             except Exception:
-                print(f"Something went wrong with {directory}. Please confirm if it is a proper assembly directory.")
+                print(
+                    f"Something went wrong with {directory}. Please confirm if it is a proper assembly directory."
+                )
                 failure += 1
                 pass
 
-        print(f"Done. You successfully renamed {success} directories and had {failure} failures.")
+        print(
+            f"Done. You successfully renamed {success} directories and had {failure} failures."
+        )

@@ -44,12 +44,14 @@ def prodigal(file, output=None, quiet=False):
     if not output:
         output = os.path.splitext(file)[0] + "_prodigal"
     else:
-        output = os.path.join(output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal")
+        output = os.path.join(
+            output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
+        )
 
     if not os.path.isdir(output):
         os.mkdir(output)
 
-    output = os.path.join(output, output.split('/')[-1])
+    output = os.path.join(output, output.split("/")[-1])
 
     cmd = f"prodigal -i {file} -a {output + '_proteins.faa'} \
             -d {output + '_genes.fna'} -o {output + '_cds.gbk'} \
@@ -66,15 +68,16 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    parser = argparse.ArgumentParser(description=
-    """
+    parser = argparse.ArgumentParser(
+        description="""
     A script to call Prodigal to predict both genes and proteins.
-    """)
+    """
+    )
 
-    parser.add_argument("-i", "--input", help=
-                        "Input FASTA file or dir containing fasta files")
-    parser.add_argument("-o", "--output", help=
-                        "Path to output folder", default="")
+    parser.add_argument(
+        "-i", "--input", help="Input FASTA file or dir containing fasta files"
+    )
+    parser.add_argument("-o", "--output", help="Path to output folder", default="")
 
     args = parser.parse_args()
 
@@ -95,7 +98,9 @@ if __name__ == "__main__":
         files = [i for i in files if os.path.isfile(i)]
 
         print("\n")
-        print(f"Starting script. You have {len(files)} files to be processed in {input}:\n")
+        print(
+            f"Starting script. You have {len(files)} files to be processed in {input}:\n"
+        )
         print("\n".join(files), "\n")
 
         success = 0

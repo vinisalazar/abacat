@@ -61,11 +61,15 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    parser = argparse.ArgumentParser(description="""
+    parser = argparse.ArgumentParser(
+        description="""
     A script to call Prokka for genome annotation.
-    """)
+    """
+    )
 
-    parser.add_argument("-i", "--input", help="Input FASTA file or dir containing fasta files")
+    parser.add_argument(
+        "-i", "--input", help="Input FASTA file or dir containing fasta files"
+    )
     parser.add_argument("-o", "--output", help="Path to output folder", default="")
 
     args = parser.parse_args()
@@ -87,7 +91,9 @@ if __name__ == "__main__":
         files = [i for i in files if os.path.isfile(i)]
 
         print("\n")
-        print(f"Starting script. You have {len(files)} files to be processed in {input}:\n")
+        print(
+            f"Starting script. You have {len(files)} files to be processed in {input}:\n"
+        )
         print("\n".join(files), "\n")
 
         success = 0
