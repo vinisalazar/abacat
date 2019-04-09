@@ -88,8 +88,8 @@ if __name__ == "__main__":
     @timer_wrapper
     def main():
         if os.path.isfile(input):
-            print(f"Starting script. Your input file is {input[0]}.")
-            prodigal(input[0], args.output)
+            print(f"Starting script. Your input file is {input}.")
+            prodigal(input, args.output)
 
         elif os.path.isdir(input):
 
@@ -116,8 +116,11 @@ if __name__ == "__main__":
                     print(f"Error for {i}. Please check if it is a valid FASTA file.")
                     failure += 1
                     pass
+
+            print("\n")
+            print(f"Done. {success} assemblies processed. {failure} errors.")
+
         else:
             raise FileNotFoundError
 
-        print("\n")
-        print(f"Done. {success} assemblies processed. {failure} errors.")
+    main()
