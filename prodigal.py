@@ -66,12 +66,15 @@ if __name__ == "__main__":
 
     start = time.time()
 
-    parser = argparse.ArgumentParser(description="""
+    parser = argparse.ArgumentParser(description=
+    """
     A script to call Prodigal to predict both genes and proteins.
     """)
 
-    parser.add_argument("-i", "--input", help="Input FASTA file or dir containing fasta files")
-    parser.add_argument("-o", "--output", help="Path to output folder", default="")
+    parser.add_argument("-i", "--input", help=
+                        "Input FASTA file or dir containing fasta files")
+    parser.add_argument("-o", "--output", help=
+                        "Path to output folder", default="")
 
     args = parser.parse_args()
 

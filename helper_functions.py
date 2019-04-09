@@ -17,7 +17,7 @@ def is_fasta(file):
 
 def is_fasta_wrapper(func):
     """
-    A decorator wrap the functions which need checking for a valid FASTA.
+    A decorator wrapper for functions which need checking for a valid FASTA.
     """
     def wrapper(*args, **kwargs):
         if not is_fasta(args[0]):
