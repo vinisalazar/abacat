@@ -3,6 +3,7 @@ import gzip
 import os
 import shutil
 import sys
+from helper_functions import timer_wrapper
 
 """
 A script to rename files in assembly directory structure.
@@ -153,29 +154,33 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(0)
 
-    # Check if it is a single assembly directory or multiple:
-    if "annotation_hashes.txt" in os.listdir(args.input):
-        ls_and_decompress(args.input)
-        rename_assembly(args.input)
+    @timer_wrapper
+    def main():
+        # Check if it is a single assembly directory or multiple:
+        if "annotation_hashes.txt" in os.listdir(args.input):
+            ls_and_decompress(args.input)
+            rename_assembly(args.input)
 
-    else:
-        directories = os.listdir(args.input)
-        success, failure = 0, 0
-        for directory in directories:
-            try:
-                directory = os.path.join(args.input, directory)
-                ls_and_decompress(directory)
-                new_dir = rename_assembly(directory)
-                if os.path.isdir(new_dir):
-                    success += 1
+        else:
+            directories = os.listdir(args.input)
+            success, failure = 0, 0
+            for directory in directories:
+                try:
+                    directory = os.path.join(args.input, directory)
+                    ls_and_decompress(directory)
+                    new_dir = rename_assembly(directory)
+                    if os.path.isdir(new_dir):
+                        success += 1
 
-            except Exception:
-                print(
-                    f"Something went wrong with {directory}. Please confirm if it is a proper assembly directory."
-                )
-                failure += 1
-                pass
+                except Exception:
+                    print(
+                        f"Something went wrong with {directory}. Please confirm if it is a proper assembly directory."
+                    )
+                    failure += 1
+                    pass
 
-        print(
-            f"Done. You successfully renamed {success} directories and had {failure} failures."
-        )
+            print(
+                f"Done. You successfully renamed {success} directories and had {failure} failures."
+            )
+
+    main()
