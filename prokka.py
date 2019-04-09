@@ -59,8 +59,6 @@ def prokka(file, output="", cpus=None):
 
 if __name__ == "__main__":
 
-    start = time.time()
-
     parser = argparse.ArgumentParser(
         description="""
     A script to call Prokka for genome annotation.
@@ -80,40 +78,44 @@ if __name__ == "__main__":
 
     input = args.input
 
-    if os.path.isfile(input):
-        print(f"Starting script. Your input file is {input}.")
-        prokka(input, args.output)
+    @timer_wrapper
+    def main():
+        if os.path.isfile(input):
+            print(f"Starting script. Your input file is {input}.")
+            prokka(input, args.output)
 
-    elif os.path.isdir(input):
+        elif os.path.isdir(input):
 
-        files = os.listdir(input)
-        files = [os.path.join(input, i) for i in files]
-        files = [i for i in files if os.path.isfile(i)]
+            files = os.listdir(input)
+            files = [os.path.join(input, i) for i in files]
+            files = [i for i in files if os.path.isfile(i)]
 
-        print("\n")
-        print(
-            f"Starting script. You have {len(files)} files to be processed in {input}:\n"
-        )
-        print("\n".join(files), "\n")
+            print("\n")
+            print(
+                f"Starting script. You have {len(files)} files to be processed in {input}:\n"
+            )
+            print("\n".join(files), "\n")
 
-        success = 0
-        failure = 0
+            success = 0
+            failure = 0
 
-        for i in files:
-            try:
-                print(f"Running Prokka for {i}.")
-                prokka(i, args.output)
-                if os.path.isdir(os.path.splitext(i)[0]):
-                    success += 1
-            except Exception as err:
-                print(f"Error for {i}. Please check if it is a valid FASTA file.")
-                failure += 1
-                pass
-    else:
-        raise FileNotFoundError
+            for i in files:
+                try:
+                    print(f"Running Prokka for {i}.")
+                    prokka(i, args.output)
+                    if os.path.isdir(os.path.splitext(i)[0]):
+                        success += 1
+                except Exception as err:
+                    print(f"Error for {i}. Please check if it is a valid FASTA file.")
+                    failure += 1
+                    pass
 
-    end = time.time()
-    delta = str(datetime.timedelta(seconds=end - start))
+            print("\n")
+            print(
+                f"Done. {success} assemblies processed. {failure} errors. Took {delta}."
+            )
 
-    print("\n")
-    print(f"Done. {success} assemblies processed. {failure} errors. Took {delta}.")
+        else:
+            raise FileNotFoundError
+
+    main()
