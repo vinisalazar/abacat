@@ -127,11 +127,13 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
     for char in bad_chars:
         fname = fname.replace(char, "")
 
+    # Rename the files
     for file in files:
         if preffix in os.path.basename(file):
             new_file = os.path.basename(file).replace(preffix, fname)
             os.rename(file, os.path.join(assembly_dir, new_file))
 
+    # Rename the directory
     os.rename(assembly_dir, os.path.join(os.path.dirname(assembly_dir), fname))
     return os.path.join(os.path.dirname(assembly_dir), fname)
 
