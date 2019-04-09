@@ -34,6 +34,19 @@ def is_fasta_wrapper(func):
 def timer_wrapper(func):
     """
     A wrapper to time the execution time of our functions.
+
+    Example usage:
+
+    if __name__ == "__main__":
+        *define argparse here*
+
+        @timer_wrapper
+        def main():
+            '''
+            This is your main function
+            '''
+
+        main()
     """
 
     def wrapper(*args, **kwargs):
