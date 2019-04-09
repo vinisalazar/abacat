@@ -62,7 +62,7 @@ if __name__ == "__main__":
     start = time.time()
 
     parser = argparse.ArgumentParser(description="""
-    A script to call Prodigal to predict both genes and proteins.
+    A script to call Prokka for genome annotation.
     """)
 
     parser.add_argument("-i", "--input", help="Input FASTA file or dir containing fasta files")
@@ -77,8 +77,8 @@ if __name__ == "__main__":
     input = args.input
 
     if os.path.isfile(input):
-        print(f"Starting script. Your input file is {input[0]}.")
-        prokka(input[0], args.output)
+        print(f"Starting script. Your input file is {input}.")
+        prokka(input, args.output)
 
     elif os.path.isdir(input):
 
