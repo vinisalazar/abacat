@@ -113,6 +113,8 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
 
     # This code is unnecessary for now, but it will help with the renaming options later
     if "organism" in rename:
+        # This if defines the length of the organism epithets.
+        # For 3 we get Genus, species and strain (default)
         if len(organism_name.split("_")) > parse_organism_name:
             organism_name = organism_name.split("_")[:parse_organism_name]
             organism_name = "_".join(organism_name)
