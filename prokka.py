@@ -20,7 +20,7 @@ import time
 import argparse
 import datetime
 import subprocess
-from helper_functions import is_fasta, is_fasta_wrapper, timer_wrapper
+from helper_functions import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper
