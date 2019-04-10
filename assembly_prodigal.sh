@@ -7,7 +7,7 @@ echo "Decompressing new files."
 tar -C /Users/viniWS/Bio/masters/test_data/ncbi/ -zxf /Users/viniWS/Bio/masters/test_data/ncbi/genome_assemblies.tar
 
 echo "Renaming files."
-python /Users/viniWS/Bio/masters/scripts/assembly_tools/renamer_v2.py -i /Users/viniWS/Bio/masters/test_data/ncbi/ncbi-genomes-2018-12-20
+python /Users/viniWS/Bio/masters/scripts/assembly_tools/renamer.py -i /Users/viniWS/Bio/masters/test_data/ncbi/ncbi-genomes-2018-12-20
 
 echo "Moving genomic files to folder."
 rm -rf /Users/viniWS/Bio/masters/test_data/ncbi/genomic_fna/
