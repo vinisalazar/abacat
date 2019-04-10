@@ -26,7 +26,7 @@ def is_fasta_wrapper(func):
             raise Exception(
                 "Your file is not valid. Please check if it is a valid FASTA file."
             )
-        func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     return wrapper
 
