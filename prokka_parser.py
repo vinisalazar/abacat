@@ -4,7 +4,9 @@ A script to parse Prokka outputs.
 Input:
 Directory output of Prokka.
 """
+import argparse
 import os
+import sys
 from Bio import SeqIO
 from helper_functions import is_fasta_wrapper, timer_wrapper
 
@@ -14,6 +16,8 @@ def ffn_parser(ffn_file, write=True):
     """
     Scans Prokka output .ffn file and creates files with SSU seqs,
     known proteins and hypothetical proteins.
+
+    # TODO: add RNA support (tRNA, ribonucleases, etc.)
     """
 
     records = SeqIO.parse(ffn_file, "fasta")
@@ -44,6 +48,33 @@ def ffn_parser(ffn_file, write=True):
                     print(f"Wrote {len(sequences)} {seq_type} sequences to {output_}.")
 
     return ssu[1], known_prots[1], hypothetical_prots[1]
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="A script to parse Prokka output files."
+    )
+    parser.add_argument(
+        "-i", "--input", help="Directory contaning Prokka output files."
+    )
+
+    args = parser.parse_args()
+
+    if not args.input:
+        parser.print_help()
+        sys.exit(0)
+
+    @timer_wrapper
+    def main():
+        if not os.path.isdir(args.input):
+            raise Exception("Your directory wasn't found.")
+
+        for file in os.listdir(args.input):
+            file = os.path.join(os.path.abspath(args.input), file)
+            if file.endswith(".ffn"):
+                ffn_parser(file)
+
+    main()
 
 
 # file = "/Users/viniWS/Bio/masters/test_data/own_data/CCMR0080_newscaffold_prokka/PROKKA_04092019.ffn"
