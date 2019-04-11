@@ -9,56 +9,80 @@ And <PATH OF OUTPUT DATAFRAME> is your output file name (.csv extension).
 """
 
 import os
-import glob
+import sys
 import argparse
 import pandas as pd
+from helper_functions import timer_wrapper
 
 
 def dict_from_report(report):
     """
-    report = full path to NCBI Assembly DB assembly report file.
+    Makes a dictionary from the report, which will then be converted into a dataframe.
     """
     with open(report) as f:
         r = f.readlines()
         r = r[:15]
         r = [line.strip() for line in r]
-        r = [line.replace('# ', '') for line in r]
-        r = [line.split(':') for line in r]
+        r = [line.replace("# ", "") for line in r]
+        r = [line.split(":") for line in r]
         r = [(line[0], line[1].lstrip()) for line in r if len(line) > 1]
         dict_ = dict(line for line in r)
-        org = dict_["Organism name"].replace(" (cyanobacteria)", "").replace(" ", "_")
-        assembly = dict_["Assembly name"].replace(" ", "_")
-        dict_["fname"] = org + "_" + assembly
+        dict_["fname"] = os.path.basename(report).split("_assembly_report.txt")[0]
 
         return dict_
 
 
-def get_base_name(report):
-    return os.path.basename(report[:-20])
-
-
-def make_dataframe(dict_, out_name):
-    if not out_name:
-        out_name = "assembly_reports.csv"
-    df = pd.DataFrame(dict_).T
-    df['AssemblyFullName'] = df.index
-    df.reset_index(level=0, inplace=True, drop=True)
-    df.to_csv(out_name, sep='\t')
-    return print(f'Table successfuly created at {out_name}.')
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="A script to put NCBI Assembly reports into a Pandas dataframe.")
-    parser.add_argument("-i", "--input", help="Full path to a directory containing assembly reports.")
-    parser.add_argument("-o", "--output", help="Path to output .csv file.")
+    parser = argparse.ArgumentParser(
+        description="A script to put NCBI Assembly reports into a csv file."
+    )
+    parser.add_argument(
+        "-i", "--input", help="Assembly report or path with assembly_reports."
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Path to output .csv file.",
+        default="assembly_reports.csv",
+    )
     args = parser.parse_args()
 
-    ls = glob.glob(os.path.join(args.input, '*/*assembly_report.txt'))
-    dict_ = dict()
-    for report in ls:
-        try:
-            dict_[get_base_name(report)] = dict_from_report(report)
-        except:
-            pass
+    if not args.input:
+        parser.print_help()
+        sys.exit(0)
 
-    make_dataframe(dict_, args.output)
+    @timer_wrapper
+    def main():
+        if os.path.isfile(args.input):
+            output = os.path.splitext(args.input)[0] + ",csv"
+            try:
+                dict_ = dict_from_report(args.input)
+                df = pd.DataFrame(dict_, index=[0])
+                df.to_csv(args.output, sep="\t", index=False)
+                print(f"Converted {args.input} into {output}.")
+            except:
+                raise
+
+        elif os.path.isdir(args.input):
+            ix = 0
+            reports = [
+                i for i in os.listdir(args.input) if i.endswith("assembly_report.txt")
+            ]
+            print(f"You have {len(reports)} reports.")
+            for report in reports:
+                try:
+                    report = os.path.join(os.path.abspath(args.input), report)
+                    dict_ = dict_from_report(report)
+                    df = pd.DataFrame(dict_, index=[0])
+                    if ix == 0:
+                        df.to_csv(args.output, sep="\t", index=False)
+                    else:
+                        with open(args.output, "a") as f:
+                            df.to_csv(f, sep="\t", header=False, index=False)
+                    ix += 1
+                except:
+                    pass
+
+            print(f"Done. Reports written to {args.output}.")
+
+    main()
