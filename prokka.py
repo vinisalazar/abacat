@@ -110,11 +110,6 @@ if __name__ == "__main__":
                     failure += 1
                     pass
 
-            print("\n")
-            print(
-                f"Done. {success} assemblies processed. {failure} errors. Took {delta}."
-            )
-
         else:
             raise FileNotFoundError
 
