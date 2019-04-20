@@ -1,7 +1,7 @@
 ---
 name: Class creation request
 about: Create a Class
-title: "[CLASS]"
+title: "[CLASS] ClassName"
 labels: enhancement
 assignees: vinisalazar
 
