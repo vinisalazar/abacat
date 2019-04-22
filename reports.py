@@ -6,6 +6,11 @@ python assembly_report_extractor.py <PATH TO REPORTS> <PATH OF OUTPUT DATAFRAME>
 
 Where <PATH TO REPORTS> is a directory containing assembly reports, and
 And <PATH OF OUTPUT DATAFRAME> is your output file name (.csv extension).
+
+# TODO: Fix append method to df.
+
+'Premature optimization is the root of all evil.' Donald Knuth.
+
 """
 
 import os
