@@ -51,17 +51,28 @@ def prodigal(file, output=None, quiet=False):
     if not os.path.isdir(output):
         os.mkdir(output)
 
-    output = os.path.join(output, output.split("/")[-1])
+    output = os.path.join(os.path.abspath(output), output.split("/")[-1])
+    output_files = {
+        "genes": output + "_genes.fna",
+        "proteins": output + "_proteins.faa",
+        "cds": output + "_cds.gbk",
+        "scores": output + "_scores.txt",
+    }
 
-    cmd = f"prodigal -i {file} -a {output + '_proteins.faa'} \
-            -d {output + '_genes.fna'} -o {output + '_cds.gbk'} \
-            -s {output + '_scores.txt'}"
+    cmd = f"prodigal -i {file} -a {output_files['proteins']} \
+            -d {output_files['genes']} -o {output_files['cds']} \
+            -s {output_files['scores']}"
 
     # This suppresses console output from Prodigal
     if quiet:
         cmd += " -q"
 
     prodigal = subprocess.call(cmd, shell=True)
+    print(f"Created files at {output}:")
+    for k, v in output_files.items():
+        print("\t", v)
+
+    return output_files
 
 
 if __name__ == "__main__":
