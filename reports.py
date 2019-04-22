@@ -54,14 +54,14 @@ if __name__ == "__main__":
     @timer_wrapper
     def main():
         if os.path.isfile(args.input):
-            output = os.path.splitext(args.input)[0] + ",csv"
-            try:
-                dict_ = dict_from_report(args.input)
-                df = pd.DataFrame(dict_, index=[0])
-                df.to_csv(args.output, sep="\t", index=False)
-                print(f"Converted {args.input} into {output}.")
-            except:
-                raise
+            output = os.path.splitext(args.input)[0] + ".csv"
+            dict_ = dict_from_report(args.input)
+            df = pd.DataFrame(dict_, index=[0])
+            if df.shape[1] < 2:
+                raise Exception("Invalid input. Please check your input file.")
+
+            df.to_csv(args.output, sep="\t", index=False)
+            print(f"Converted {args.input} into {output}")
 
         elif os.path.isdir(args.input):
             ix = 0
