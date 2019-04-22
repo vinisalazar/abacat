@@ -3,18 +3,10 @@ A file containing our main classes and functions.
 """
 
 import datetime
+import os
 import time
 from Bio import SeqIO
-
-
-class Assembly(object):
-    """
-    Assembly, a class containing bacterial assembly data and methods.
-    """
-
-    def __init__(self, arg):
-        super(Assembly, self).__init__()
-        self.arg = arg
+from prodigal import prodigal
 
 
 def is_fasta(file):
@@ -70,3 +62,31 @@ def timer_wrapper(func):
         print(f"Took {delta}")
 
     return wrapper
+
+
+class Assembly:
+    """
+    Assembly, a class containing bacterial assembly data and methods.
+    """
+
+    def __init__(self):
+        super(Assembly, self).__init__()
+        self.inputs = dict()
+        self.outputs = dict()
+        self.metadata = None
+        self.geneset = None
+        self.protset = None
+
+    @timer_wrapper
+    def run_prodigal(self, quiet=True):
+        if not self.inputs["contigs"]:
+            raise Exception("Must specify input contigs file.")
+
+        print(f"Starting script. Your input file is {input}.")
+
+        prodigal_out = prodigal(self.inputs["contigs"], quiet=quiet)
+
+        self.outputs["prodigal"] = prodigal_out
+
+    def load_from_fasta(self, input_fasta, metadata=None):
+        self.inputs["contigs"] = os.path.abspath(input_fasta)
