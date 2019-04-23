@@ -8,6 +8,7 @@ import time
 from Bio import SeqIO
 from bactools_helper import get_records, is_fasta, is_fasta_wrapper, timer_wrapper
 from prodigal import prodigal
+from prokka import prokka
 
 
 class Assembly:
@@ -19,7 +20,6 @@ class Assembly:
 
     def __init__(self, contigs=None, prodigal=False):
         super(Assembly, self).__init__()
-        self.files = dict()
         self.files = dict()
         self.metadata = None
         self.geneset = None
@@ -137,7 +137,11 @@ class Assembly:
         """
         Check for contigs file, run Prokka on file.
         """
-        pass
+        self.valid_contigs(quiet)
+        input = self.files["contigs"]
+        print(f"Starting Prokka. Your input file is {input}. Quiet setting is {quiet}.")
+        prokka_out = prokka(input)
+        self.files["prokka"] = prokka_out
 
 
 @is_fasta_wrapper

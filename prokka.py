@@ -44,17 +44,18 @@ def prokka(file, output="", cpus=None):
         output = os.path.join(os.path.abspath(output), os.path.splitext(file)[0])
     else:
         output = os.path.basename(os.path.splitext(file)[0])
-
     output = f"--outdir {output}_prokka"
 
     if not cpus:
         cpus = int(os.cpu_count() / 2)
-
     cpus = f"--cpus {cpus}"
 
     cmd = f"prokka {output} {file} {cpus}"
 
     prokka = subprocess.call(cmd, shell=True)
+
+    # Build dict for return value.
+    return 0
 
 
 if __name__ == "__main__":
