@@ -20,7 +20,7 @@ import time
 import argparse
 import datetime
 import subprocess
-from bactools import is_fasta_wrapper, timer_wrapper
+from bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper

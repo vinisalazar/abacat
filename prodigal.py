@@ -21,7 +21,7 @@ import time
 import argparse
 import datetime
 import subprocess
-from bactools import is_fasta_wrapper, timer_wrapper
+from bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
             print("\n")
             print(
-                f"Starting script. You have {len(files)} files to be processed in {input}:\n"
+                f"Starting Prodigal. Quiet setting is {quiet}. You have {len(files)} files to be processed in {input}:\n"
             )
             print("\n".join(files), "\n")
 
