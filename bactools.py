@@ -19,8 +19,8 @@ class Assembly:
 
     def __init__(self, contigs=None, prodigal=False):
         super(Assembly, self).__init__()
-        self.inputs = dict()
-        self.outputs = dict()
+        self.files = dict()
+        self.files = dict()
         self.metadata = None
         self.geneset = None
         self.protset = None
@@ -32,7 +32,7 @@ class Assembly:
             self.load_prodigal_input()
 
     def valid_contigs(self, quiet=True):
-        if not self.inputs["contigs"]:
+        if not self.files["contigs"]:
             raise Exception("Must specify input contigs file.")
         else:
             if not quiet:
@@ -50,7 +50,7 @@ class Assembly:
             )
         else:
             print(f"Contigs file set as {contigs}")
-            self.inputs["contigs"] = os.path.abspath(contigs)
+            self.files["contigs"] = os.path.abspath(contigs)
 
     def load_prodigal_input(self, prodigal_out=None):
         """
@@ -64,11 +64,11 @@ class Assembly:
         else:
             try:
                 if os.path.isdir(
-                    os.path.splitext(os.path.abspath(self.inputs["contigs"]))[0]
+                    os.path.splitext(os.path.abspath(self.files["contigs"]))[0]
                     + "_prodigal"
                 ):
                     input = (
-                        os.path.splitext(os.path.abspath(self.inputs["contigs"]))[0]
+                        os.path.splitext(os.path.abspath(self.files["contigs"]))[0]
                         + "_prodigal"
                     )
                     print(f"Prodigal folder set as {input}")
@@ -79,7 +79,7 @@ class Assembly:
                 )
 
         # This dictionary is the same as output_files from the prodigal.py script.
-        self.outputs["prodigal"] = dict()
+        self.files["prodigal"] = dict()
 
         try:
             os.path.isdir(input)
@@ -89,13 +89,13 @@ class Assembly:
         for file_ in os.listdir(input):
             file_ = os.path.join(input, file_)
             if file_.endswith("_genes.fna"):
-                self.outputs["prodigal"]["genes"] = file_
+                self.files["prodigal"]["genes"] = file_
             elif file_.endswith("_proteins.faa"):
-                self.outputs["prodigal"]["proteins"] = file_
+                self.files["prodigal"]["proteins"] = file_
             elif file_.endswith("_cds.gbk"):
-                self.outputs["prodigal"]["cds"] = file_
+                self.files["prodigal"]["cds"] = file_
             elif file_.endswith("_scores.txt"):
-                self.outputs["prodigal"]["scores"] = file_
+                self.files["prodigal"]["scores"] = file_
             else:
                 print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
                 pass
@@ -107,15 +107,13 @@ class Assembly:
         if kind == "prodigal":
             try:
                 self.geneset["prodigal_data"] = get_records(
-                    self.inputs["prodigal"]["genes"]
+                    self.files["prodigal"]["genes"]
                 )
             except Exception:
                 raise
         elif kind == "prokka":
             try:
-                self.geneset["prokka_data"] = get_records(
-                    self.inputs["prokka"]["genes"]
-                )
+                self.geneset["prokka_data"] = get_records(self.files["prokka"]["genes"])
             except Exception:
                 raise
         else:
@@ -127,12 +125,12 @@ class Assembly:
         Check for contigs file, run Prodigal on file.
         """
         self.valid_contigs(quiet)
-        input = self.inputs["contigs"]
+        input = self.files["contigs"]
         print(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
         prodigal_out = prodigal(input, quiet=quiet)
-        self.outputs["prodigal"] = prodigal_out
+        self.files["prodigal"] = prodigal_out
 
     @timer_wrapper
     def run_prokka(self, quiet=True):
