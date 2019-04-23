@@ -56,3 +56,18 @@ def timer_wrapper(func):
         print(f"Took {delta}")
 
     return wrapper
+
+
+@is_fasta_wrapper
+def get_records(fasta_file, kind="gen"):
+    with open(fasta_file) as f:
+        if kind == "gen":
+            records = SeqIO.parse(fasta_file, format="fasta")
+        elif kind == "list":
+            records = list(SeqIO.parse(fasta_file, format="fasta"))
+        elif kind == "dict":
+            records = SeqIO.to_dict(SeqIO.parse(fasta_file, format="fasta"))
+        else:
+            print(f"Specified {kind} kind. Please specify a valid kind.")
+
+    return records
