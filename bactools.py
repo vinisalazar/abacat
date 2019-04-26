@@ -52,7 +52,7 @@ class Assembly:
             print(f"Contigs file set as {contigs}")
             self.files["contigs"] = os.path.abspath(contigs)
 
-    def load_prodigal_input(self, prodigal_out=None):
+    def load_prodigal_input(self, prodigal_out=None, load_geneset=True):
         """
         Attach Prodigal results to class object.
 
@@ -100,24 +100,37 @@ class Assembly:
                 print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
                 pass
 
-    def load_geneset(self, kind="prodigal"):
+        if load_geneset:
+            self.load_geneset()
+
+    def load_geneset(self, kind="prodigal", records="list"):
 
         self.geneset = dict()
 
         if kind == "prodigal":
             try:
-                self.geneset["prodigal_data"] = get_records(
-                    self.files["prodigal"]["genes"]
+                self.geneset["prodigal"] = get_records(
+                    self.files["prodigal"]["genes"], kind=records
                 )
             except Exception:
                 raise
         elif kind == "prokka":
             try:
-                self.geneset["prokka_data"] = get_records(self.files["prokka"]["genes"])
+                self.geneset["prokka"] = get_records(
+                    self.files["prokka"]["genes"], kind=records
+                )
             except Exception:
                 raise
         else:
             print(f"Passed {kind} kind of geneset input. Please specify a valid input.")
+
+        if self.geneset:
+            if records == "list":
+                print(
+                    f"Loaded gene set from {kind.capitalize()} data. It has {len(self.geneset[kind])} genes."
+                )
+            else:
+                print(f"Loaded gene set from {kind.capitalize()} data.")
 
     @timer_wrapper
     def run_prodigal(self, quiet=True):
