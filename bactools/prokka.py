@@ -24,7 +24,7 @@ from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper
-def prokka(file, output="", cpus=None):
+def prokka(file, output="", cpus=None, params=""):
     """
     Calls Prokka on an input file.
 
@@ -47,18 +47,45 @@ def prokka(file, output="", cpus=None):
         output = os.path.join(os.path.abspath(output), os.path.splitext(file)[0])
     else:
         output = os.path.basename(os.path.splitext(file)[0])
-    output = f"--outdir {output}_prokka"
+    output = f"{output}_prokka"
+    output_ = f"--outdir {output}"
 
     if not cpus:
         cpus = int(os.cpu_count() / 2)
     cpus = f"--cpus {cpus}"
 
-    cmd = f"prokka {output} {file} {cpus}"
+    cmd = f"prokka {output_} {file} {cpus} {params}"
 
     prokka = subprocess.call(cmd, shell=True)
 
-    # Build dict for return value.
-    return 0
+    output_files = dict()
+
+    for f in os.listdir(output):
+        f = os.path.join(os.path.abspath(output), f)
+        ext = os.path.splitext(f)[1]
+        # How to change this to a more elegant dictionary?
+        if ext == ".fna":
+            output_files["input_contigs"] = f
+        elif ext == ".faa":
+            output_files["proteins"] = f
+        elif ext == ".ffn":
+            output_files["genes"] = f
+        elif ext == ".fsa":
+            output_files["submit_contigs"] = f
+        elif ext == ".tbl":
+            output_files["featuretable"] = f
+        elif ext == ".sqn":
+            output_files["sequin"] = f
+        elif ext == ".gbk":
+            output_files["genbank"] = f
+        elif ext == ".gff":
+            output_files["gff"] = f
+        elif ext == ".log":
+            output_files["log"] = f
+        elif ext == ".txt":
+            output_files["stats"] = f
+
+    return output_files
 
 
 if __name__ == "__main__":
@@ -70,9 +97,21 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-i", "--input", help="Input FASTA file or dir containing fasta files"
+        "-i", "--input", help="Input FASTA file or dir containing fasta files."
     )
-    parser.add_argument("-o", "--output", help="Path to output folder", default="")
+    parser.add_argument("-o", "--output", help="Path to output folder.", default="")
+    parser.add_argument(
+        "-p",
+        "--params",
+        help="Additional parameters to pass to Prokka as a string.",
+        default="",
+    )
+    parser.add_argument(
+        "-c",
+        "--cpus",
+        help="Number of CPUs to use. Default is half of the system's CPUs.",
+        default=None,
+    )
 
     args = parser.parse_args()
 
@@ -86,7 +125,7 @@ if __name__ == "__main__":
     def main():
         if os.path.isfile(input):
             print(f"Starting script. Your input file is {input}.")
-            prokka(input, args.output)
+            prokka(input, args.output, args.cpus, args.params)
 
         elif os.path.isdir(input):
 
@@ -106,7 +145,7 @@ if __name__ == "__main__":
             for i in files:
                 try:
                     print(f"Running Prokka for {i}.")
-                    prokka(i, args.output)
+                    prokka(i, args.output, args.cpus, args.params)
                     if os.path.isdir(os.path.splitext(i)[0]):
                         success += 1
                 except Exception as err:
