@@ -1,5 +1,6 @@
 """
 A file containing our main classes and functions.
+# TODO: Create class for sets (geneset, protset)
 """
 
 import datetime
@@ -57,7 +58,9 @@ class Assembly:
             print(f"Contigs file set as {contigs}")
             self.files["contigs"] = os.path.abspath(contigs)
 
-    def load_prodigal_input(self, prodigal_out=None, load_geneset=True):
+    def load_prodigal_input(
+        self, prodigal_out=None, load_geneset=True, load_protset=True
+    ):
         """
         Attach Prodigal results to class object.
 
@@ -107,35 +110,88 @@ class Assembly:
 
         if load_geneset:
             self.load_geneset()
+        if load_protset:
+            self.load_protset()
 
     def load_geneset(self, kind="prodigal", records="list"):
 
         self.geneset = dict()
 
         if kind == "prodigal":
+            # Origin is the file from which the set came from
+            origin = self.files["prodigal"]["genes"]
             try:
-                self.geneset["prodigal"] = get_records(
-                    self.files["prodigal"]["genes"], kind=records
-                )
+                self.geneset["prodigal"] = dict()
+                self.geneset["prodigal"]["records"] = get_records(origin, kind=records)
+                self.geneset["prodigal"]["origin"] = origin
+
             except Exception:
                 raise
         elif kind == "prokka":
+            origin = self.files["prokka"]["genes"]
             try:
-                self.geneset["prokka"] = get_records(
-                    self.files["prokka"]["genes"], kind=records
-                )
+                self.geneset["prokka"] = dict()
+                self.geneset["prokka"]["records"] = get_records(origin, kind=records)
+                self.geneset["prokka"]["origin"] = origin
             except Exception:
                 raise
         else:
             print(f"Passed {kind} kind of geneset input. Please specify a valid input.")
 
+        # Maybe change this if/else block later.
         if self.geneset:
             if records == "list":
                 print(
-                    f"Loaded gene set from {kind.capitalize()} data. It has {len(self.geneset[kind])} genes."
+                    f"Loaded gene set from {kind.capitalize()} data. It has {len(self.geneset[kind]['records'])} genes."
                 )
             else:
                 print(f"Loaded gene set from {kind.capitalize()} data.")
+        else:
+            print(f"No gene set found in {origin}.")
+
+    def load_protset(self, kind="prodigal", records="list"):
+
+        self.protset = dict()
+
+        if kind == "prodigal":
+            origin = self.files["prodigal"]["proteins"]
+            try:
+                self.protset["prodigal"] = dict()
+                self.protset["prodigal"]["records"] = get_records(origin, kind=records)
+                # TODO: attach origin to a variable (stated by 'kind')
+                self.protset["prodigal"]["origin"] = origin
+
+            except Exception:
+                raise
+        # Add Prokka functionality here.
+        # elif kind == "prokka":
+        #     try:
+        #         self.protset["prokka"] = dict()
+        #         self.protset["prokka"]["proteins"] = get_records(
+        #             self.files["prokka"]["proteins"], kind=records
+        #         )
+        #         self.protset["prokka"]["origin"] = self.files["prokka"]["proteins"]
+        #     except Exception:
+        #         raise
+        elif kind == "prokka":
+            origin = self.files["prokka"]["proteins"]
+            try:
+                self.protset["prokka"] = dict()
+                self.protset["prokka"]["records"] = get_records(origin, kind=records)
+                self.protset["prokka"]["origin"] = origin
+
+            except Exception:
+                raise
+
+        if self.protset:
+            if records == "list":
+                print(
+                    f"Loaded protein set from {kind.capitalize()} data. It has {len(self.protset[kind]['records'])} genes."
+                )
+            else:
+                print(f"Loaded protein set from {kind.capitalize()} data.")
+        else:
+            print(f"No proteins set found in {origin}.")
 
     @timer_wrapper
     def run_prodigal(self, quiet=True):
