@@ -75,19 +75,3 @@ if __name__ == "__main__":
                 ffn_parser(file)
 
     main()
-
-
-# file = "/Users/viniWS/Bio/masters/test_data/own_data/CCMR0080_newscaffold_prokka/PROKKA_04092019.ffn"
-# @timer_wrapper
-# def main():
-#     files = [
-#         "/Users/viniWS/Bio/masters/test_data/own_data/CCMR0080_newscaffold_prokka/PROKKA_04092019.ffn",
-#         "/Users/viniWS/Bio/masters/test_data/own_data/CCMR0082_newscaffold_prokka/PROKKA_04092019.ffn",
-#         "/Users/viniWS/Bio/masters/test_data/own_data/CCMR0083_newscaffold_prokka/PROKKA_04092019.ffn",
-#         "/Users/viniWS/Bio/masters/test_data/own_data/CCMR0085_newscaffold_prokka/PROKKA_04092019.ffn",
-#     ]
-#     for file in files:
-#         ssu_finder(file)
-#
-#
-# main()
