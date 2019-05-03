@@ -6,9 +6,14 @@ import datetime
 import os
 import time
 from Bio import SeqIO
-from .bactools_helper import get_records, is_fasta, is_fasta_wrapper, timer_wrapper
-from .prodigal import prodigal
-from .prokka import prokka
+from bactools.bactools_helper import (
+    get_records,
+    is_fasta,
+    is_fasta_wrapper,
+    timer_wrapper,
+)
+from bactools.prodigal import prodigal
+from bactools.prokka import prokka
 
 
 class Assembly:

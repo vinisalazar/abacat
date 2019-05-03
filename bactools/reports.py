@@ -17,7 +17,7 @@ import os
 import sys
 import argparse
 import pandas as pd
-from .bactools_helper import timer_wrapper
+from bactools.bactools_helper import timer_wrapper
 
 
 def dict_from_report(report):
