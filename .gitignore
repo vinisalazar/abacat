@@ -2,3 +2,4 @@ __pycache__
 CCMR*
 bactools.egg-info/
 dist/
+build/
