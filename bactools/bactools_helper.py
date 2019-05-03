@@ -19,11 +19,14 @@ def is_fasta_wrapper(func):
     """
 
     def wrapper(*args, **kwargs):
-        if not is_fasta(args[0]):
-            raise Exception(
-                "Your file is not valid. Please check if it is a valid FASTA file."
-            )
-        return func(*args, **kwargs)
+        try:
+            if not is_fasta(args[0]):
+                raise Exception(
+                    "Your file is not valid. Please check if it is a valid FASTA file."
+                )
+            return func(*args, **kwargs)
+        except IndexError:
+            print("Please specify an input file.")
 
     return wrapper
 

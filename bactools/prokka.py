@@ -40,6 +40,9 @@ def prokka(file, output="", cpus=None):
         prokka("contigs.fasta", "output_folder/")
     """
 
+    if not file:
+        return "Please specify an input file."
+
     if output:
         output = os.path.join(os.path.abspath(output), os.path.splitext(file)[0])
     else:

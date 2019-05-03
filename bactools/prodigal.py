@@ -21,7 +21,7 @@ import time
 import argparse
 import datetime
 import subprocess
-from .bactools_helper import is_fasta_wrapper, timer_wrapper
+from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper
@@ -42,7 +42,9 @@ def prodigal(file, output=None, quiet=False):
     """
 
     if not output:
-        output = os.path.splitext(file)[0] + "_prodigal"
+        output = os.path.join(
+            os.getcwd(), os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
+        )
     else:
         output = os.path.join(
             output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
@@ -52,6 +54,7 @@ def prodigal(file, output=None, quiet=False):
         os.mkdir(output)
 
     output = os.path.join(os.path.abspath(output), output.split("/")[-1])
+    print(f"Your output is {output}.")
     output_files = {
         "genes": output + "_genes.fna",
         "proteins": output + "_proteins.faa",
