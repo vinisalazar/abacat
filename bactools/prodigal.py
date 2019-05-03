@@ -54,7 +54,6 @@ def prodigal(file, output=None, quiet=False):
         os.mkdir(output)
 
     output = os.path.join(os.path.abspath(output), output.split("/")[-1])
-    print(f"Your output is {output}.")
     output_files = {
         "genes": output + "_genes.fna",
         "proteins": output + "_proteins.faa",
