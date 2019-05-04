@@ -218,7 +218,7 @@ class Assembly:
 
 
 @is_fasta_wrapper
-def load_from_fasta(contigs):
+def load_from_fasta(fasta_file):
     """
     A function to load assemblies and run Prodigal directly.
 
@@ -230,8 +230,8 @@ def load_from_fasta(contigs):
     """
     assembly = Assembly()
 
-    print(f"Loading contigs file from {contigs}.")
-    assembly.load_contigs(contigs)
+    print(f"Loading contigs file from {fasta_file}.")
+    assembly.load_contigs(fasta_file)
     assembly.run_prodigal()
 
     return assembly

@@ -12,7 +12,7 @@ from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper
-def ffn_parser(ffn_file, write=True):
+def ffn_parser(fasta_file, write=True):
     """
     Scans Prokka output .ffn file and creates files with SSU seqs,
     known proteins and hypothetical proteins.
@@ -20,7 +20,7 @@ def ffn_parser(ffn_file, write=True):
     # TODO: add RNA support (tRNA, ribonucleases, etc.)
     """
 
-    records = SeqIO.parse(ffn_file, "fasta")
+    records = SeqIO.parse(fasta_file, "fasta")
     ssu, known_prots, hypothetical_prots = (
         ("SSU", []),
         ("known_prots", []),
@@ -28,7 +28,7 @@ def ffn_parser(ffn_file, write=True):
     )
 
     # Generate our output file name.
-    output = os.path.splitext(os.path.abspath(ffn_file))[0]
+    output = os.path.splitext(os.path.abspath(fasta_file))[0]
 
     for seq in records:
         if "16S ribosomal RNA" in seq.description:
@@ -40,7 +40,7 @@ def ffn_parser(ffn_file, write=True):
 
     for seq_type, sequences in (ssu, known_prots, hypothetical_prots):
         if len(sequences) >= 1:
-            print(f"Found {len(sequences)} {seq_type} sequences in {ffn_file}.")
+            print(f"Found {len(sequences)} {seq_type} sequences in {fasta_file}.")
             if write:
                 output_ = output + f"_{seq_type}.fna"
                 with open(output_, "w") as f:

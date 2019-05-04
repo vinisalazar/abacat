@@ -24,8 +24,31 @@ import subprocess
 from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
+class Prodigal:
+    """This class will hold Prodigal run data."""
+
+    def __init__(self, contigs=None):
+        super(Prodigal, self).__init__()
+        self.contigs = None
+        self.cmd = None
+
+    @is_fasta_wrapper
+    def prodigal_run(self, fasta_file, output=None, quiet=True):
+        if not output:
+            output = os.path.join(
+                os.getcwd(), os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
+            )
+        else:
+            output = os.path.join(
+                output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
+            )
+
+        if not os.path.isdir(output):
+            os.mkdir(output)
+
+
 @is_fasta_wrapper
-def prodigal(file, output=None, quiet=False):
+def prodigal(fasta_file, output=None, quiet=False):
     """
     Calls Prodigal on an input file.
 
@@ -43,11 +66,11 @@ def prodigal(file, output=None, quiet=False):
 
     if not output:
         output = os.path.join(
-            os.getcwd(), os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
+            os.getcwd(), os.path.basename(os.path.splitext(fasta_file)[0]) + "_prodigal"
         )
     else:
         output = os.path.join(
-            output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
+            output, os.path.basename(os.path.splitext(fasta_file)[0]) + "_prodigal"
         )
 
     if not os.path.isdir(output):
@@ -61,7 +84,7 @@ def prodigal(file, output=None, quiet=False):
         "scores": output + "_scores.txt",
     }
 
-    cmd = f"prodigal -i {file} -a {output_files['proteins']} \
+    cmd = f"prodigal -i {fasta_file} -a {output_files['proteins']} \
             -d {output_files['genes']} -o {output_files['cds']} \
             -s {output_files['scores']}"
 

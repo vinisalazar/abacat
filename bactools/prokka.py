@@ -24,7 +24,7 @@ from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper
-def prokka(file, output="", cpus=None, params=""):
+def prokka(fasta_file, output="", cpus=None, params=""):
     """
     Calls Prokka on an input file.
 
@@ -40,13 +40,13 @@ def prokka(file, output="", cpus=None, params=""):
         prokka("contigs.fasta", "output_folder/")
     """
 
-    if not file:
+    if not fasta_file:
         return "Please specify an input file."
 
     if output:
-        output = os.path.join(os.path.abspath(output), os.path.splitext(file)[0])
+        output = os.path.join(os.path.abspath(output), os.path.splitext(fasta_file)[0])
     else:
-        output = os.path.basename(os.path.splitext(file)[0])
+        output = os.path.basename(os.path.splitext(fasta_file)[0])
     output = f"{output}_prokka"
     output_ = f"--outdir {output}"
 
@@ -54,7 +54,7 @@ def prokka(file, output="", cpus=None, params=""):
         cpus = int(os.cpu_count() / 2)
     cpus = f"--cpus {cpus}"
 
-    cmd = f"prokka {output_} {file} {cpus} {params}"
+    cmd = f"prokka {output_} {fasta_file} {cpus} {params}"
 
     prokka = subprocess.call(cmd, shell=True)
 
