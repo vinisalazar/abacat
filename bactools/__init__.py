@@ -7,5 +7,5 @@ from bactools.bactools_helper import (
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import prodigal
+from bactools.prodigal import Prodigal, prodigal
 from bactools.prokka import prokka
