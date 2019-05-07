@@ -6,6 +6,8 @@ A file containing our main classes and functions.
 import datetime
 import os
 import time
+import pandas as pd
+import subprocess
 from Bio import SeqIO
 from bactools.bactools_helper import (
     get_records,
@@ -27,7 +29,7 @@ class Assembly:
     def __init__(self, contigs=None, prodigal=False):
         super(Assembly, self).__init__()
         self.files = dict()
-        self.metadata = None
+        self.metadata = dict()
         self.geneset = dict()
         self.protset = dict()
 
@@ -50,6 +52,8 @@ class Assembly:
         This loads the contigs input file. I want to make it a constructor method.
         """
         contigs = os.path.abspath(contigs)
+
+        # Must use class decorator, same as in Prodigal class.
         if not is_fasta(os.path.abspath(contigs)):
             raise Exception(
                 "Your file is not valid. Please check if it is a valid FASTA file."
@@ -58,9 +62,46 @@ class Assembly:
             print(f"Contigs file set as {contigs}")
             self.files["contigs"] = os.path.abspath(contigs)
 
-    def load_prodigal_input(
-        self, prodigal_out=None, load_geneset=True, load_protset=True
-    ):
+    def load_seqstats(self):
+        if not self.files["contigs"]:
+            raise Exception(
+                "Your Assembly doesn't have an input file! Please provide one."
+            )
+
+        self.metadata["seqstats"] = dict()
+
+        try:
+            stats = subprocess.check_output(["seqstats", self.files["contigs"]]).decode(
+                "utf-8"
+            )
+            stats = stats.split("\n")
+            for n in stats:
+                n = n.split(":")
+                if len(n) == 2:
+                    try:
+                        self.metadata["seqstats"][n[0]] = float(
+                            n[1].strip().replace(" bp", "")
+                        )
+                    except (ValueError, IndexError) as error:
+                        print(
+                            "Something is wrong with the seqstats output. Please check your seqstats command."
+                        )
+        except FileNotFoundError:
+            raise
+
+    def seqstats(self):
+        if self.metadata["seqstats"]:
+            for key, value in self.metadata["seqstats"].items():
+                print(f"{key}\t\t{value}")
+        else:
+            try:
+                self.load_seqstats()
+                self.seqstats
+            except:
+                print("Tried loading seqstats, but an error occurred.")
+                raise
+
+    def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True):
         """
         Attach Prodigal results to class object.
 
@@ -183,6 +224,40 @@ class Assembly:
                 print(f"Loaded protein set from {kind.capitalize()} data.")
         else:
             print(f"No proteins set found in {origin}.")
+
+    def df_prodigal(self, kind="gene"):
+        if not self.geneset["prodigal"]:
+            try:
+                self.load_geneset()
+            except Exception("Please load your Prodigal geneset."):
+                raise
+
+        self.geneset["prodigal"]["df"] = pd.DataFrame(
+            columns=(
+                "id",
+                "start",
+                "stop",
+                "strand",
+                "id_",
+                "partial",
+                "start_type",
+                "rbs_motif",
+                "rbs_spacer",
+                "gc_cont",
+            )
+        )
+
+        def extract_row(record):
+            row = record.description.split(";")
+            row = row[0].split(" # ") + row[1:]
+            row = [i.split("=")[-1] for i in row]
+            return row
+
+        for record in self.geneset["prodigal"]["records"]:
+            # This one liner appends each record to the end of the dataframe.
+            self.geneset["prodigal"]["df"].loc[
+                len(self.geneset["prodigal"]["df"])
+            ] = extract_row(record)
 
     @timer_wrapper
     def run_prodigal(self, quiet=True, load_sets=["gene", "prot"]):
