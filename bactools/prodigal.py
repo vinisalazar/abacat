@@ -31,20 +31,13 @@ class Prodigal:
         super(Prodigal, self).__init__()
         self.contigs = None
         self.cmd = None
+        self.output = None
 
-    @is_fasta_wrapper
-    def prodigal_run(self, fasta_file, output=None, quiet=True):
-        if not output:
-            output = os.path.join(
-                os.getcwd(), os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
-            )
-        else:
-            output = os.path.join(
-                output, os.path.basename(os.path.splitext(file)[0]) + "_prodigal"
-            )
+    # @is_fasta_wrapper add this wrapper later
+    def prodigal(self, quiet=True):
 
-        if not os.path.isdir(output):
-            os.mkdir(output)
+        if not os.path.isdir(self.output):
+            os.mkdir(self.output)
 
 
 @is_fasta_wrapper
