@@ -225,6 +225,7 @@ class Assembly:
         else:
             print(f"No proteins set found in {origin}.")
 
+    @timer_wrapper
     def df_prodigal(self, kind="gene"):
         if not self.geneset["prodigal"]:
             try:
