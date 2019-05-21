@@ -225,6 +225,16 @@ class Assembly:
         else:
             print(f"No proteins set found in {origin}.")
 
+    def fnoseqs(self, kind="prodigal", seqs="genes"):
+        """
+        Fast check of number of sequences in file.
+        """
+        with open(self.files[kind][seqs]) as f:
+            records = SeqIO.parse(f, "fasta")
+            len_ = sum(1 for x in records)
+
+        return len_
+
     @timer_wrapper
     def df_prodigal(self, kind="gene"):
         if not self.geneset["prodigal"]:
