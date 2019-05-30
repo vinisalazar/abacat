@@ -1,15 +1,10 @@
 import os
-from bactools.bactools_helper import timer_wrapper
+from bactools import Assembly, timer_wrapper
 from config import CONFIG
 from Bio import Entrez
 from Bio import SeqIO
 
-Entrez.email = "vinicius.salazar@neoprospecta.com"
-
-# records = SeqIO.parse(CONFIG["db"], "fasta")
-# genome = next(records)
-# query = "_".join(genome.description.split("_")[:-1])
-
+Entrez.email = CONFIG["email"]
 
 class GenomeFetch:
     """
@@ -88,6 +83,11 @@ class Query(object):
 
 
 genfet = GenomeFetch("/Users/viniWS/storage/neorefs/rev6/test/test_rev6.fasta")
-genfet.accessions
+
+assemblies = dict()
+
 for acc in genfet.accessions:
-    acc.fetch_query()
+    assemblies[acc.repr] = Assembly(acc.out_fasta)
+
+for k, v in assemblies.items():
+    v.run_prodigal()

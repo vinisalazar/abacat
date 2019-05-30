@@ -295,10 +295,11 @@ class Assembly:
         """
         self.valid_contigs(quiet)
         input = self.files["contigs"]
+        output = os.path.dirname(os.path.abspath(self.files["contigs"]))
         print(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
-        prodigal_out = prodigal(input, quiet=quiet)
+        prodigal_out = prodigal(input, output=output, quiet=quiet)
         self.files["prodigal"] = prodigal_out
         if "gene" in load_sets:
             self.load_geneset()
