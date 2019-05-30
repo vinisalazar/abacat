@@ -10,7 +10,7 @@ genome = next(records)
 query = "_".join(genome.description.split("_")[:-1])
 
 
-class Query:
+class Genome_Fetch:
     """
     Genome Fetch is the class that will fetch our genomes from NCBI.
     It is attached to a records_file, which contains the terms used for fetching (accession numbers).
