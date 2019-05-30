@@ -1,4 +1,5 @@
 import os
+from bactools.bactools_helper import timer_wrapper
 from config import CONFIG
 from Bio import Entrez
 from Bio import SeqIO
@@ -52,59 +53,41 @@ class Query(object):
         query = self.repr
         out_gb = self.out_gb
         out_fasta = self.out_fasta
-        if not force:
-            if os.path.isfile(out_gb):
-                return f"{self.out_gb} already exists. Use force or set a different path."
-            if os.path.isfile(out_fasta):
-                return f"{self.out_fasta} already exists. Use force or set a different path."
 
         print(f"Searching for query {query}.")
 
+        if not force:
+            if os.path.isfile(out_gb):
+                print(f"{self.out_gb} already exists. Use force or set a different path.")
+                gb = False
+            if os.path.isfile(out_fasta):
+                print(f"{self.out_fasta} already exists. Use force or set a different path.")
+                fasta = False
+
         if gb:
-            net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="gb", retmode="text")
-            with open(out_gb, "w") as out_handle:
-                out_handle.write(net_handle.read())
-                net_handle.close()
-                print(f"Saved .gbk record for query {query} at {out_gb}.")
+            @timer_wrapper
+            def write_gb():
+                net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="gb", retmode="text")
+                with open(out_gb, "w") as out_handle:
+                    out_handle.write(net_handle.read())
+                    net_handle.close()
+                    print(f"Saved .gbk record for query {query} at {out_gb}.")
+
+            write_gb()
 
         if fasta:
-            net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="fasta", retmode="text")
-            with open(out_fasta, "w") as out_handle:
-                out_handle.write(net_handle.read())
-                net_handle.close()
-                print(f"Saved .fasta record for query {query} at {out_fasta}.")
+            @timer_wrapper
+            def write_fasta():
+                net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="fasta", retmode="text")
+                with open(out_fasta, "w") as out_handle:
+                    out_handle.write(net_handle.read())
+                    net_handle.close()
+                    print(f"Saved .fasta record for query {query} at {out_fasta}.")
+
+            write_fasta()
 
 
 genfet = GenomeFetch("/Users/viniWS/storage/neorefs/rev6/test/test_rev6.fasta")
 genfet.accessions
-
-
-
-
-
-# def download_query(query, force=False, fasta=True, gb=True):
-#     out_gb = os.path.join(CONFIG["gb"], query + ".gbk")
-#     out_fasta = os.path.join(CONFIG["fasta"], query + ".fasta")
-#     if not force:
-#         if os.path.isfile(out_gb):
-#             return f"{out_gb} already exists. Use force or set a different path."
-#         if os.path.isfile(out_fasta):
-#             return f"{out_gb} already exists. Use force or set a different path."
-#
-#     print(f"Searching for query {query}.")
-#
-#     if gb:
-#         net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="gb", retmode="text")
-#         with open(out_gb, "w") as out_handle:
-#             out_handle.write(net_handle.read())
-#             net_handle.close()
-#             print(f"Saved .gbk record for query {query} at {out_gb}.")
-#
-#     if fasta:
-#         net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="fasta", retmode="text")
-#         with open(out_fasta, "w") as out_handle:
-#             out_handle.write(net_handle.read())
-#             net_handle.close()
-#             print(f"Saved .fasta record for query {query} at {out_fasta}.")
-#
-# download_query(query, force=True)
+for acc in genfet.accessions:
+    acc.fetch_query()
