@@ -8,10 +8,7 @@ Entrez.email = CONFIG["email"]
 
 class GenomeFetch:
     """
-    Genome Fetch is the class that will fetch our genomes from NCBI.
-    It is attached to a records_file, which contains the terms used for fetching (accession numbers).
-    We want to write those files to .gbk and .fasta records.
-    The path to those records will be in the CONFIG file.
+    Class GenomeFetch. Hosts accession numbers that will be queried.
     """
 
     def __init__(self, records_file=None):
@@ -90,4 +87,4 @@ for acc in genfet.accessions:
     assemblies[acc.repr] = Assembly(acc.out_fasta)
 
 for k, v in assemblies.items():
-    v.run_prodigal()
+    v.load_prodigal()
