@@ -9,3 +9,5 @@ from bactools.bactools_helper import (
 )
 from bactools.prodigal import Prodigal, prodigal
 from bactools.prokka import prokka
+from bactools.config import CONFIG
+from bactools.genome_fetch import GenomeFetch, Query

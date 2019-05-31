@@ -1,6 +1,5 @@
 import os
-from bactools import Assembly, timer_wrapper
-from config import CONFIG
+from bactools import Assembly, timer_wrapper, CONFIG
 from Bio import Entrez
 from Bio import SeqIO
 
@@ -18,13 +17,27 @@ class GenomeFetch:
         self.out_gb = CONFIG["gb"]
         self.out_fasta = CONFIG["fasta"]
         if records_file:
-            self.load_accessions()
+            if os.path.splitext(records_file)[1] in (".fna", ".fasta"):  # Checks if it is a FASTA file.
+                self.load_accessions(fasta=True)
+            else:
+                self.load_accessions()
 
-    def load_accessions(self):
-        with open(self.records_file) as f:
-            records = SeqIO.parse(f, "fasta")
-            desc = [i.description for i in records]
-        self.accessions = [Query(j, out_gb_dir=self.out_gb, out_fasta_dir=self.out_fasta) for j in {i[:-3] for i in desc}]  # Don't save the index.
+    def load_accessions(self, fasta=False):
+        """
+        Load accession numbers as queries.
+        Fasta: if True, accession numbers should be in a fasta file as sequence
+        descriptions. Else, should be in a file, one per line.
+        """
+        if fasta:
+            with open(self.records_file) as f:
+                records = SeqIO.parse(f, "fasta")
+                desc = ["_".join(i.description.split("_")[:2]) for i in records]
+                self.accessions = [Query(j, out_gb_dir=self.out_gb, out_fasta_dir=self.out_fasta) for j in {i for i in desc}]  # Don't save the index.
+        else:
+            with open(self.records_file) as f:
+                records = f.readlines()
+                records = [i.strip() for i in records]
+                self.accessions = [Query(i, out_gb_dir=self.out_gb, out_fasta_dir=self.out_fasta) for i in records]
 
 
 class Query(object):
@@ -77,14 +90,3 @@ class Query(object):
                     print(f"Saved .fasta record for query {query} at {out_fasta}.")
 
             write_fasta()
-
-
-genfet = GenomeFetch("/Users/viniWS/storage/neorefs/rev6/test/test_rev6.fasta")
-
-assemblies = dict()
-
-for acc in genfet.accessions:
-    assemblies[acc.repr] = Assembly(acc.out_fasta)
-
-for k, v in assemblies.items():
-    v.load_prodigal()
