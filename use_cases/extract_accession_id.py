@@ -26,8 +26,10 @@ def find_gbk_files(input_dir):
     return gbk_files
 
 
-def extract_assembly_accession(list_of_gbk_files, write_to="accessions"):
+def extract_assembly_accession(list_of_gbk_files, write_to="accessions.txt"):
     acc = []
+    not_found = []
+    not_found_p = os.path.splitext(write_to)[0] + "_not_found.txt"
     for gbk in list_of_gbk_files:
         with open(gbk) as f:
             gbk_ = os.path.basename(os.path.splitext(gbk)[0])
@@ -38,6 +40,7 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions"):
                 )[1]
                 acc.append((gbk_, acc_id))
             except IndexError:
+                not_found.append(gbk_)
                 print(gbk_)
                 pass
 
@@ -46,8 +49,16 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions"):
             for i in acc:
                 f.write(":".join(i) + "\n")
 
+        if len(not_found) >= 1:
+            with open(not_found_p):
+                for i in not_found:
+                    f.write(i)
+
         if os.path.isfile(write_to):
             print(f"Wrote {len(acc)} accessions to {write_to}.")
+
+        if os.path.isfile(not_found_p):
+            print(f"Wrote {len(not_found)} not found {not_found_p}.")
 
     return acc
 
