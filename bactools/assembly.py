@@ -240,11 +240,14 @@ class Assembly:
         Fast check of size of sequences file.
         """
         size = os.stat(self.files[kind][seqs]).st_size
-        def format_bytes(size):  # from https://stackoverflow.com/questions/12523586/python-format-size-application-converting-b-to-kb-mb-gb-tb/37423778
+
+        def format_bytes(
+            size
+        ):  # from https://stackoverflow.com/questions/12523586/python-format-size-application-converting-b-to-kb-mb-gb-tb/37423778
             # 2**10 = 1024
-            power = 2**10
+            power = 2 ** 10
             n = 0
-            power_labels = {0 : '', 1: 'k', 2: 'm', 3: 'g', 4: 't'}
+            power_labels = {0: "", 1: "k", 2: "m", 3: "g", 4: "t"}
             while size > power:
                 size /= power
                 n += 1

@@ -5,6 +5,7 @@ from Bio import SeqIO
 
 Entrez.email = CONFIG["email"]
 
+
 class GenomeFetch:
     """
     Class GenomeFetch. Hosts accession numbers that will be queried.
@@ -16,7 +17,10 @@ class GenomeFetch:
         self.accessions = None
         self.out_dir = CONFIG["out_dir"]
         if records_file:
-            if os.path.splitext(records_file)[1] in (".fna", ".fasta"):  # Checks if it is a FASTA file.
+            if os.path.splitext(records_file)[1] in (
+                ".fna",
+                ".fasta",
+            ):  # Checks if it is a FASTA file.
                 self.load_accessions(fasta=True)
             else:
                 self.load_accessions()
@@ -31,7 +35,9 @@ class GenomeFetch:
             with open(self.records_file) as f:
                 records = SeqIO.parse(f, "fasta")
                 desc = ["_".join(i.description.split("_")[:2]) for i in records]
-                self.accessions = [Query(j, out_dir=self.out_dir) for j in {i for i in desc}]  # Don't save the index.
+                self.accessions = [
+                    Query(j, out_dir=self.out_dir) for j in {i for i in desc}
+                ]  # Don't save the index.
         else:
             with open(self.records_file) as f:
                 records = f.readlines()
@@ -46,7 +52,7 @@ class Query(object):
     It is important to note that some of the accession numbers need to be converted.
     """
 
-    def __init__(self, repr, out_dir = None):
+    def __init__(self, repr, out_dir=None):
         super(Query, self).__init__()
         self.repr = repr
         self.out_dir = os.path.join(out_dir, repr)
@@ -64,19 +70,26 @@ class Query(object):
 
         if not force:
             if os.path.isfile(self.out_gb):
-                print(f"{self.out_gb} already exists. Use force or set a different path.")
+                print(
+                    f"{self.out_gb} already exists. Use force or set a different path."
+                )
                 gb = False
             if os.path.isfile(self.out_fasta):
-                print(f"{self.out_fasta} already exists. Use force or set a different path.")
+                print(
+                    f"{self.out_fasta} already exists. Use force or set a different path."
+                )
                 fasta = False
 
         if not os.path.isdir(self.out_dir):
             os.mkdir(self.out_dir)
 
         if gb:
+
             @timer_wrapper
             def write_gb():
-                net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="gb", retmode="text")
+                net_handle = Entrez.efetch(
+                    db="nucleotide", id=query, rettype="gb", retmode="text"
+                )
                 r = net_handle.read()
                 with open(self.out_gb, "w") as out_handle:
                     out_handle.write(r)
@@ -86,9 +99,12 @@ class Query(object):
             write_gb()
 
         if fasta:
+
             @timer_wrapper
             def write_fasta():
-                net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="fasta", retmode="text")
+                net_handle = Entrez.efetch(
+                    db="nucleotide", id=query, rettype="fasta", retmode="text"
+                )
                 r = net_handle.read()
                 if len(r) < 10:
                     print("Failed to find .FASTA for this entry.")
