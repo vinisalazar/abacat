@@ -30,28 +30,21 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions"):
     acc = []
     for gbk in list_of_gbk_files:
         with open(gbk) as f:
+            gbk_ = os.path.basename(os.path.splitext(gbk)[0])
             record = SeqIO.parse(f, "genbank")
             try:
-                acc.append(
-                    (
-                        os.path.splitext(os.path.basename(gbk))[0],
-                        [i for i in next(record).dbxrefs if "Assembly" in i][0].split(
-                            "Assembly:"
-                        )[1],
-                    )
-                )
+                acc_id = [i for i in next(record).dbxrefs if "Assembly" in i][0].split(
+                    "Assembly:"
+                )[1]
+                acc.append((gbk_, acc_id))
             except IndexError:
-                print(gbk)
+                print(gbk_)
                 pass
 
     if write_to:
         with open(write_to, "w") as f:
             for i in acc:
-                f.write(i[1] + "\n")
-
-        with open(write_to + "_paired", "w") as f:
-            for i in acc:
-                f.write(": ".join(i) + "\n")
+                f.write(":".join(i) + "\n")
 
         if os.path.isfile(write_to):
             print(f"Wrote {len(acc)} accessions to {write_to}.")
