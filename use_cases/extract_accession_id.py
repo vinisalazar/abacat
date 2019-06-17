@@ -31,14 +31,18 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions"):
     for gbk in list_of_gbk_files:
         with open(gbk) as f:
             record = SeqIO.parse(f, "genbank")
-            acc.append(
-                (
-                    os.path.splitext(os.path.basename(gbk))[0],
-                    [i for i in next(record).dbxrefs if "Assembly" in i][0].split(
-                        "Assembly:"
-                    )[1],
+            try:
+                acc.append(
+                    (
+                        os.path.splitext(os.path.basename(gbk))[0],
+                        [i for i in next(record).dbxrefs if "Assembly" in i][0].split(
+                            "Assembly:"
+                        )[1],
+                    )
                 )
-            )
+            except IndexError:
+                print(gbk)
+                pass
 
     if write_to:
         with open(write_to, "w") as f:
