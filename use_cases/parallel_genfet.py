@@ -34,6 +34,6 @@ if __name__ == "__main__":
 
     acc = main(args.input)
 
-    with mp.Pool(args.threads) as p:
+    with mp.Pool(int(args.threads)) as p:
         f = methodcaller('fetch_query', force=args.force, fasta=args.fasta, gb=args.gb)
         p.map(f, acc)
