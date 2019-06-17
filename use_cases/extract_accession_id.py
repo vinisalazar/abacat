@@ -50,7 +50,7 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions.txt"):
                 f.write(":".join(i) + "\n")
 
         if len(not_found) >= 1:
-            with open(not_found_p):
+            with open(not_found_p, "w"):
                 for i in not_found:
                     f.write(i)
 
