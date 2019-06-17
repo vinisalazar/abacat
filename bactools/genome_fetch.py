@@ -73,8 +73,9 @@ class Query(object):
             @timer_wrapper
             def write_gb():
                 net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="gb", retmode="text")
+                r = net_handle.read()
                 with open(self.out_gb, "w") as out_handle:
-                    out_handle.write(net_handle.read())
+                    out_handle.write(r)
                     net_handle.close()
                     print(f"Saved .gbk record for query {query} at {self.out_gb}.")
 
@@ -84,8 +85,12 @@ class Query(object):
             @timer_wrapper
             def write_fasta():
                 net_handle = Entrez.efetch(db="nucleotide", id=query, rettype="fasta", retmode="text")
+                r = net_handle.read()
+                if len(r) < 10:
+                    print("Failed to find .FASTA for this entry.")
+                    return
                 with open(self.out_fasta, "w") as out_handle:
-                    out_handle.write(net_handle.read())
+                    out_handle.write(r)
                     net_handle.close()
                     print(f"Saved .fasta record for query {query} at {self.out_fasta}.")
 
