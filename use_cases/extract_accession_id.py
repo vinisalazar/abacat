@@ -33,7 +33,7 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions"):
             record = SeqIO.parse(f, "genbank")
             acc.append(
                 (
-                    os.path.splitext(os.path.basename(acc))[1],
+                    os.path.splitext(os.path.basename(record))[1],
                     [i for i in next(record).dbxrefs if "Assembly" in i][0].split(
                         "Assembly:"
                     )[1],
