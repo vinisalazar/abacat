@@ -40,7 +40,11 @@ class GenomeFetch:
 
 
 class Query(object):
-    """docstring for Query."""
+    """
+    Query to nucletide database. Should be a valid NCBI accession number.
+
+    It is important to note that some of the accession numbers need to be converted.
+    """
 
     def __init__(self, repr, out_dir = None):
         super(Query, self).__init__()
