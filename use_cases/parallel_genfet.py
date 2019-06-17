@@ -4,7 +4,7 @@ This script runs batch GenomeFetch in parallel to fetch queries.
 
 import os
 import argparse
-import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 from bactools import CONFIG, GenomeFetch, Query
 from Bio import Entrez
 from operator import methodcaller
@@ -34,6 +34,6 @@ if __name__ == "__main__":
 
     acc = main(args.input)
 
-    with mp.Pool(int(args.threads)) as p:
+    with ThreadPool(int(args.threads)) as p:
         f = methodcaller('fetch_query', force=args.force, fasta=args.fasta, gb=args.gb)
         p.map(f, acc)
