@@ -41,7 +41,7 @@ class Prodigal:
 
 
 @is_fasta_wrapper
-def prodigal(fasta_file, output=None, quiet=False):
+def prodigal(fasta_file, output=None, quiet=False, scores=False):
     """
     Calls Prodigal on an input file.
 
@@ -78,8 +78,10 @@ def prodigal(fasta_file, output=None, quiet=False):
     }
 
     cmd = f"prodigal -i {fasta_file} -a {output_files['proteins']} \
-            -d {output_files['genes']} -o {output_files['cds']} \
-            -s {output_files['scores']}"
+            -d {output_files['genes']} -o {output_files['cds']}"
+
+    if scores:
+        cmd = cmd + f" -s {output_files['scores']}
 
     # This suppresses console output from Prodigal
     if quiet:
