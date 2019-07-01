@@ -37,7 +37,7 @@ class Assembly:
             self.load_contigs(contigs)
 
         if prodigal:
-            self.load_prodigal_input()
+            self.load_prodigal()
 
     def valid_contigs(self, quiet=True):
         if not self.files["contigs"]:
