@@ -81,7 +81,7 @@ def prodigal(fasta_file, output=None, quiet=False, scores=False):
             -d {output_files['genes']} -o {output_files['cds']}"
 
     if scores:
-        cmd = cmd + f" -s {output_files['scores']}
+        cmd = cmd + f" -s {output_files['scores']}"
 
     # This suppresses console output from Prodigal
     if quiet:
