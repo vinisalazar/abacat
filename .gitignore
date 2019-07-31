@@ -6,3 +6,5 @@ build/
 accessions*
 refseq/
 use_cases/accession
+.idea/
+
