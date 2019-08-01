@@ -7,7 +7,7 @@ from bactools.bactools_helper import (
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import Prodigal, prodigal
+from bactools.prodigal import Prodigal, run
 from bactools.prokka import prokka
 from bactools.config import CONFIG
 from bactools.genome_fetch import GenomeFetch, Query
