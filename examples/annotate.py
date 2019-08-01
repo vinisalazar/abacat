@@ -15,4 +15,6 @@ from bactools import Assembly
 
 cyano = Assembly("/Users/viniWS/Bio/bactools/data/CCMR0085_newscaffold.fasta")
 
-cyano.seqstats()
+cyano.load_seqstats()
+
+cyano.run_prodigal()
