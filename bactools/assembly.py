@@ -106,7 +106,7 @@ class Assembly:
                 print("Tried loading seqstats, but an error occurred.")
                 raise
 
-    def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True):
+    def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True, print_=False):
         """
         Attach Prodigal results to class object.
 
@@ -151,7 +151,8 @@ class Assembly:
             elif file_.endswith("_scores.txt"):
                 self.files["prodigal"]["scores"] = file_
             else:
-                print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
+                if print_:
+                    print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
                 pass
 
         if load_geneset:
