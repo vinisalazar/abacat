@@ -11,13 +11,27 @@ Example annotation pipeline.
 
 """
 
+import os
 import argparse
-from bactools import Assembly
+import subprocess
+from Bio.Blast.Applications import NcbiblastxCommandline
+from bactools import Assembly, CONFIG, timer_wrapper
 
+@timer_wrapper
 def main(input_):
-    ably = Assembly(input_)
-    ably.load_seqstats()
-    ably.run_prodigal()
+    assembly = Assembly(input_)
+    assembly.load_seqstats()
+    # assembly.run_prodigal()
+    assembly.load_prodigal(assembly.directory)
+    blastx = NcbiblastxCommandline(
+        query=assembly.files["prodigal"]["genes"],
+        db=CONFIG["db"]["COG"],
+        out=os.path.join(assembly.directory, "blastx_out"),
+        num_descriptions=5,
+        num_alignments=5,
+        evalue=10**-3
+    )
+    blastx()
 
 
 if __name__ == "__main__":
