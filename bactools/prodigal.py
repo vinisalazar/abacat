@@ -17,9 +17,7 @@ Example usage:
 
 import os
 import sys
-import time
 import argparse
-import datetime
 import subprocess
 from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
@@ -34,11 +32,6 @@ class Prodigal:
     Valid FASTA file.
     Output:
     Genes (.fna), proteins (.faa), gene scores (.txt), gbk file (.gbk).
-
-    Example:
-
-    from prodigal import prodigal
-    prodigal("contigs.fasta", "output_folder/")
 
     """
 
@@ -78,15 +71,25 @@ class Prodigal:
         if all(os.path.isfile(value) for _, value in self.output_files.items()):
             self.finished = True
             print(f"Created files at {self.output}:")
-            for k, v in self.output_files.items():
+            for _, v in self.output_files.items():
                 print("\t", v)
-
 
         else:
             self.finished = False
 
         return self.output_files
 
+
+@is_fasta_wrapper
+@timer_wrapper
+def run(contig_file, quiet=False):
+    """
+    Run outside of class scope.
+    """
+    p = Prodigal(contig_file, quiet=quiet)
+    p.run()
+
+    return p.output_files
 
 
 if __name__ == "__main__":
@@ -108,19 +111,19 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(0)
 
-    input = args.input
+    input_ = args.input
 
     @timer_wrapper
     def main():
-        if os.path.isfile(input):
+        if os.path.isfile(input_):
             print(f"Starting script. Your input file is {input}.")
-            p = Prodigal(input, output = args.output)
+            p = Prodigal(input_, output = args.output)
             p.run()
 
-        elif os.path.isdir(input):
+        elif os.path.isdir(input_):
 
-            files = os.listdir(input)
-            files = [os.path.join(input, i) for i in files]
+            files = os.listdir(input_)
+            files = [os.path.join(input_, i) for i in files]
             files = [i for i in files if os.path.isfile(i)]
 
             print("\n")
@@ -134,16 +137,11 @@ if __name__ == "__main__":
 
             for contig_file in files:
                 try:
-                    print(f"Running Prodigal for {i}.")
-                    @timer_wrapper
-                    def run(contig_file):
-                        p = Prodigal(contig_file, output=args.output, quiet=True)
-                        p.run()
-
+                    print(f"Running Prodigal for {contig_file}.")
                     run(contig_file)
                     if os.path.isdir(os.path.splitext(contig_file)[0]):
                         success += 1
-                except Exception as err:
+                except ValueError:
                     print(f"Error for {contig_file}. Please check if it is a valid FASTA contigs file.")
                     failure += 1
                     pass
