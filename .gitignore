@@ -8,3 +8,6 @@ refseq/
 use_cases/accession
 .idea/
 
+genome_fetcher/accession
+data/
+.DS_Store

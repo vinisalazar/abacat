@@ -1,4 +1,4 @@
-from bactools import GenomeFetch, Query
+from .genome_fetcher import GenomeFetch, Query
 
 genfet = GenomeFetch("/Users/viniWS/storage/neorefs/rev6/test/test_rev6.fasta")
 

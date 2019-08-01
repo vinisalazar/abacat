@@ -3,9 +3,7 @@ A file containing our main classes and functions.
 # TODO: Create class for sets (geneset, protset)
 """
 
-import datetime
 import os
-import time
 import pandas as pd
 import subprocess
 from Bio import SeqIO
@@ -15,7 +13,7 @@ from bactools.bactools_helper import (
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import prodigal
+from bactools.prodigal import run
 from bactools.prokka import prokka
 
 
@@ -26,12 +24,14 @@ class Assembly:
     # TODO: seqstats or Prodigal basic info (length, GC content) for metadata
     """
 
-    def __init__(self, contigs=None, prodigal=False):
+    def __init__(self, contigs=None, prodigal=False, name=None):
         super(Assembly, self).__init__()
+        self.directory = None
+        self.name = None
         self.files = dict()
-        self.metadata = dict()
         self.geneset = dict()
         self.protset = dict()
+        self.seqstats = None
 
         if contigs:
             self.load_contigs(contigs)
@@ -59,8 +59,12 @@ class Assembly:
                 "Your file is not valid. Please check if it is a valid FASTA file."
             )
         else:
-            print(f"Contigs file set as {contigs}")
             self.files["contigs"] = os.path.abspath(contigs)
+            print(f"Contigs file set as {contigs}")
+            self.directory = os.path.dirname(self.files["contigs"])
+            print(f"Directory set as {self.directory}")
+            self.name = os.path.splitext(os.path.abspath(contigs))[0]
+            print(f"Name set as {self.name}")
 
     def load_seqstats(self):
         if not self.files["contigs"]:
@@ -68,7 +72,7 @@ class Assembly:
                 "Your Assembly doesn't have an input file! Please provide one."
             )
 
-        self.metadata["seqstats"] = dict()
+        self.seqstats = dict()
 
         try:
             stats = subprocess.check_output(["seqstats", self.files["contigs"]]).decode(
@@ -79,19 +83,20 @@ class Assembly:
                 n = n.split(":")
                 if len(n) == 2:
                     try:
-                        self.metadata["seqstats"][n[0]] = float(
+                        self.seqstats[n[0]] = float(
                             n[1].strip().replace(" bp", "")
                         )
                     except (ValueError, IndexError) as error:
                         print(
                             "Something is wrong with the seqstats output. Please check your seqstats command."
                         )
+            self.seqstats
         except FileNotFoundError:
             raise
 
     def seqstats(self):
-        if self.metadata["seqstats"]:
-            for key, value in self.metadata["seqstats"].items():
+        if self.seqstats:
+            for key, value in self.seqstats.items():
                 print(f"{key}\t\t{value}")
         else:
             try:
@@ -101,7 +106,7 @@ class Assembly:
                 print("Tried loading seqstats, but an error occurred.")
                 raise
 
-    def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True):
+    def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True, print_=False):
         """
         Attach Prodigal results to class object.
 
@@ -146,7 +151,8 @@ class Assembly:
             elif file_.endswith("_scores.txt"):
                 self.files["prodigal"]["scores"] = file_
             else:
-                print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
+                if print_:
+                    print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
                 pass
 
         if load_geneset:
@@ -298,11 +304,10 @@ class Assembly:
         """
         self.valid_contigs(quiet)
         input = self.files["contigs"]
-        output = os.path.dirname(os.path.abspath(self.files["contigs"]))
         print(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
-        prodigal_out = prodigal(input, output=output, quiet=quiet)
+        prodigal_out = run(input, output=self.directory, quiet=quiet)
         self.files["prodigal"] = prodigal_out
         if "gene" in load_sets:
             self.load_geneset()
