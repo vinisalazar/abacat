@@ -11,10 +11,18 @@ Example annotation pipeline.
 
 """
 
+import argparse
 from bactools import Assembly
 
-cyano = Assembly("/Users/viniWS/Bio/bactools/data/CCMR0085_newscaffold.fasta")
+def main(input_):
+    ably = Assembly(input_)
+    ably.load_seqstats()
+    ably.run_prodigal()
 
-cyano.load_seqstats()
 
-cyano.run_prodigal()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Annotation pipeline. Starts with a contig file.")
+    parser.add_argument("-i", "--input", help="Input file. Must a valid FASTA contigs file.")
+    args = parser.parse_args()
+    main(args.input)
+
