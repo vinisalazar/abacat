@@ -25,24 +25,9 @@ from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
 
 
 class Prodigal:
-    """This class will hold Prodigal run data."""
-
-    def __init__(self, contigs=None):
-        super(Prodigal, self).__init__()
-        self.contigs = None
-        self.cmd = None
-        self.output = None
-
-    # @is_fasta_wrapper add this wrapper later
-    def prodigal(self, quiet=True):
-
-        if not os.path.isdir(self.output):
-            os.mkdir(self.output)
-
-
-@is_fasta_wrapper
-def prodigal(fasta_file, output=None, quiet=False, scores=False):
     """
+    This class will hold Prodigal run data.
+
     Calls Prodigal on an input file.
 
     Input:
@@ -52,47 +37,56 @@ def prodigal(fasta_file, output=None, quiet=False, scores=False):
 
     Example:
 
-        from prodigal import prodigal
-        prodigal("contigs.fasta", "output_folder/")
+    from prodigal import prodigal
+    prodigal("contigs.fasta", "output_folder/")
 
     """
 
-    if not output:
-        output = os.path.join(
-            os.getcwd(), os.path.basename(os.path.splitext(fasta_file)[0]) + "_prodigal"
-        )
-    else:
-        output = os.path.join(
-            output, os.path.basename(os.path.splitext(fasta_file)[0]) + "_prodigal"
-        )
+    def __init__(self, contigs, output=None, quiet=False):
+        super(Prodigal, self).__init__()
+        self.name = None
+        self.contigs = contigs  # an assembled genome contigs file.
+        self.quiet = quiet
+        self.finished = None
 
-    if not os.path.isdir(output):
-        os.mkdir(output)
+        if not output:
+            output = os.path.join(
+                os.getcwd(), os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal"
+            )
+        else:
+            output = os.path.join(
+                output, os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal"
+            )
+        self.output = os.path.join(os.path.abspath(output), output.split("/")[-1])
+        self.output_files = {
+            "genes": output + "_genes.fna",
+            "proteins": output + "_proteins.faa",
+            "cds": output + "_cds.gbk",
+            "scores": output + "_scores.txt",
+        }
 
-    output = os.path.join(os.path.abspath(output), output.split("/")[-1])
-    output_files = {
-        "genes": output + "_genes.fna",
-        "proteins": output + "_proteins.faa",
-        "cds": output + "_cds.gbk",
-        "scores": output + "_scores.txt",
-    }
+        self.cmd = f"prodigal -i {self.contigs} -a {self.output_files['proteins']} \
+                    -d {self.output_files['genes']} -o {self.output_files['cds']}"
 
-    cmd = f"prodigal -i {fasta_file} -a {output_files['proteins']} \
-            -d {output_files['genes']} -o {output_files['cds']}"
+        if self.quiet:
+            self.cmd += " -q"
 
-    if scores:
-        cmd = cmd + f" -s {output_files['scores']}"
+    def run(self):
+        is_fasta_wrapper(self.contigs)
+        subprocess.call(self.cmd, shell=True)
 
-    # This suppresses console output from Prodigal
-    if quiet:
-        cmd += " -q"
+        if all(os.path.isfile(value) for _, value in self.output_files.items()):
+            self.finished = True
+            print(f"Created files at {self.output}:")
+            for k, v in self.output_files.items():
+                print("\t", v)
 
-    prodigal = subprocess.call(cmd, shell=True)
-    print(f"Created files at {output}:")
-    for k, v in output_files.items():
-        print("\t", v)
 
-    return output_files
+        else:
+            self.finished = False
+
+        return self.output_files
+
 
 
 if __name__ == "__main__":
@@ -120,7 +114,8 @@ if __name__ == "__main__":
     def main():
         if os.path.isfile(input):
             print(f"Starting script. Your input file is {input}.")
-            prodigal(input, args.output)
+            p = Prodigal(input, output = args.output)
+            p.run()
 
         elif os.path.isdir(input):
 
@@ -137,14 +132,19 @@ if __name__ == "__main__":
             success = 0
             failure = 0
 
-            for i in files:
+            for contig_file in files:
                 try:
                     print(f"Running Prodigal for {i}.")
-                    prodigal(i, args.output, quiet=True)
-                    if os.path.isdir(os.path.splitext(i)[0]):
+                    @timer_wrapper
+                    def run(contig_file):
+                        p = Prodigal(contig_file, output=args.output, quiet=True)
+                        p.run()
+
+                    run(contig_file)
+                    if os.path.isdir(os.path.splitext(contig_file)[0]):
                         success += 1
                 except Exception as err:
-                    print(f"Error for {i}. Please check if it is a valid FASTA file.")
+                    print(f"Error for {contig_file}. Please check if it is a valid FASTA contigs file.")
                     failure += 1
                     pass
 
