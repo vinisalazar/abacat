@@ -3,9 +3,7 @@ A file containing our main classes and functions.
 # TODO: Create class for sets (geneset, protset)
 """
 
-import datetime
 import os
-import time
 import pandas as pd
 import subprocess
 from Bio import SeqIO
@@ -15,7 +13,7 @@ from bactools.bactools_helper import (
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import prodigal
+from bactools.prodigal import Prodigal, run
 from bactools.prokka import prokka
 
 
@@ -28,6 +26,7 @@ class Assembly:
 
     def __init__(self, contigs=None, prodigal=False):
         super(Assembly, self).__init__()
+        self.directory = None
         self.files = dict()
         self.metadata = dict()
         self.geneset = dict()
@@ -59,8 +58,10 @@ class Assembly:
                 "Your file is not valid. Please check if it is a valid FASTA file."
             )
         else:
-            print(f"Contigs file set as {contigs}")
             self.files["contigs"] = os.path.abspath(contigs)
+            print(f"Contigs file set as {contigs}")
+            self.directory = os.path.dirname(self.files["contigs"])
+            print(f"Directory set as {self.directory}")
 
     def load_seqstats(self):
         if not self.files["contigs"]:
@@ -302,7 +303,7 @@ class Assembly:
         print(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
-        prodigal_out = prodigal(input, output=output, quiet=quiet)
+        prodigal_out = run(input, output=output, quiet=quiet)
         self.files["prodigal"] = prodigal_out
         if "gene" in load_sets:
             self.load_geneset()
