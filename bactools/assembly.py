@@ -13,7 +13,7 @@ from bactools.bactools_helper import (
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import Prodigal, run
+from bactools.prodigal import run
 from bactools.prokka import prokka
 
 
