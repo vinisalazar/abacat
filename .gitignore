@@ -9,3 +9,4 @@ use_cases/accession
 .idea/
 
 genome_fetcher/accession
+data/
