@@ -28,9 +28,9 @@ class Assembly:
         super(Assembly, self).__init__()
         self.directory = None
         self.files = dict()
-        self.metadata = dict()
         self.geneset = dict()
         self.protset = dict()
+        self.seqstats = None
 
         if contigs:
             self.load_contigs(contigs)
@@ -69,7 +69,7 @@ class Assembly:
                 "Your Assembly doesn't have an input file! Please provide one."
             )
 
-        self.metadata["seqstats"] = dict()
+        self.seqstats = dict()
 
         try:
             stats = subprocess.check_output(["seqstats", self.files["contigs"]]).decode(
@@ -80,19 +80,20 @@ class Assembly:
                 n = n.split(":")
                 if len(n) == 2:
                     try:
-                        self.metadata["seqstats"][n[0]] = float(
+                        self.seqstats[n[0]] = float(
                             n[1].strip().replace(" bp", "")
                         )
                     except (ValueError, IndexError) as error:
                         print(
                             "Something is wrong with the seqstats output. Please check your seqstats command."
                         )
+            self.seqstats
         except FileNotFoundError:
             raise
 
     def seqstats(self):
-        if self.metadata["seqstats"]:
-            for key, value in self.metadata["seqstats"].items():
+        if self.seqstats:
+            for key, value in self.seqstats.items():
                 print(f"{key}\t\t{value}")
         else:
             try:
@@ -299,11 +300,10 @@ class Assembly:
         """
         self.valid_contigs(quiet)
         input = self.files["contigs"]
-        output = os.path.dirname(os.path.abspath(self.files["contigs"]))
         print(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
-        prodigal_out = run(input, output=output, quiet=quiet)
+        prodigal_out = run(input, output=self.directory, quiet=quiet)
         self.files["prodigal"] = prodigal_out
         if "gene" in load_sets:
             self.load_geneset()
