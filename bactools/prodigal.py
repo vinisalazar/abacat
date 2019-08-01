@@ -19,7 +19,7 @@ import os
 import sys
 import argparse
 import subprocess
-from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
+from bactools.bactools_helper import is_fasta, is_fasta_wrapper, timer_wrapper
 
 
 class Prodigal:
@@ -38,6 +38,7 @@ class Prodigal:
     def __init__(self, contigs, output=None, quiet=False):
         super(Prodigal, self).__init__()
         self.name = None
+        is_fasta(contigs)
         self.contigs = contigs  # an assembled genome contigs file.
         self.quiet = quiet
         self.finished = None
@@ -79,7 +80,7 @@ class Prodigal:
 
         return self.output_files
 
-
+@timer_wrapper
 def run(contig_file, output=None, quiet=False):
     """
     Run outside of class scope.
