@@ -10,3 +10,4 @@ use_cases/accession
 
 genome_fetcher/accession
 data/
+.DS_Store
