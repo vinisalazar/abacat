@@ -24,9 +24,10 @@ class Assembly:
     # TODO: seqstats or Prodigal basic info (length, GC content) for metadata
     """
 
-    def __init__(self, contigs=None, prodigal=False):
+    def __init__(self, contigs=None, prodigal=False, name=None):
         super(Assembly, self).__init__()
         self.directory = None
+        self.name = None
         self.files = dict()
         self.geneset = dict()
         self.protset = dict()
@@ -62,6 +63,8 @@ class Assembly:
             print(f"Contigs file set as {contigs}")
             self.directory = os.path.dirname(self.files["contigs"])
             print(f"Directory set as {self.directory}")
+            self.name = os.path.splitext(os.path.abspath(contigs))[0]
+            print(f"Name set as {self.name}")
 
     def load_seqstats(self):
         if not self.files["contigs"]:
