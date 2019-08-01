@@ -80,13 +80,11 @@ class Prodigal:
         return self.output_files
 
 
-@is_fasta_wrapper
-@timer_wrapper
-def run(contig_file, quiet=False):
+def run(contig_file, output=None, quiet=False):
     """
     Run outside of class scope.
     """
-    p = Prodigal(contig_file, quiet=quiet)
+    p = Prodigal(contig_file, output=output, quiet=quiet)
     p.run()
 
     return p.output_files
