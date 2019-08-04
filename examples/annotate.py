@@ -14,7 +14,6 @@ Example annotation pipeline.
 import os
 import argparse
 from subprocess import Popen, PIPE
-from Bio.Blast.Applications import NcbiblastxCommandline
 from bactools import Assembly, CONFIG, timer_wrapper
 
 @timer_wrapper
@@ -23,8 +22,6 @@ def main(input_):
     assembly.load_seqstats()
     assembly.seqstats
     assembly.run_prodigal()
-    # assembly.load_prodigal(assembly.directory)
-    assembly.files["prodigal"]["genes"] = "/Users/viniWS/Bio/bactools/data/test_blast_prots.fna"
     assembly.load_geneset()
     with open(assembly.name + ".blast_out", "w") as f:
         ix = 1
@@ -42,16 +39,6 @@ def main(input_):
             p = Popen(cmd, stdout=f, stderr=PIPE, shell=True, executable="/bin/bash")
             out, err = p.communicate()
             ix += 1
-
-    # blastx = NcbiblastxCommandline(
-    #     query=assembly.files["prodigal"]["genes"],
-    #     db=CONFIG["db"]["COG"],
-    #     out=os.path.join(assembly.directory, "blastx_out"),
-    #     num_descriptions=5,
-    #     num_alignments=5,
-    #     evalue=10**-3
-    # )
-    # blastx()
 
 
 if __name__ == "__main__":
