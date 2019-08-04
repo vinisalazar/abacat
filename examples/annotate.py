@@ -20,7 +20,7 @@ from bactools import Assembly, CONFIG, timer_wrapper
 def main(input_):
     assembly = Assembly(input_)
     assembly.load_seqstats()
-    assembly.seqstats
+    print(assembly.seqstats)
     assembly.run_prodigal()
     assembly.load_geneset()
     with open(assembly.name + ".blast_out", "w") as f:

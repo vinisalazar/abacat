@@ -13,7 +13,7 @@ from bactools.bactools_helper import (
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import run
+from bactools.prodigal import Prodigal
 from bactools.prokka import prokka
 
 
@@ -152,7 +152,7 @@ class Assembly:
                 self.files["prodigal"]["scores"] = file_
             else:
                 if print_:
-                    print(f"{file_} apparently is not a Prodigal output file. Ignoring it.")
+                    print(f"{file_} apparently is not a P? rodigal output file. Ignoring it.")
                 pass
 
         if load_geneset:
@@ -307,8 +307,8 @@ class Assembly:
         print(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
-        prodigal_out = run(input, output=self.directory, quiet=quiet)
-        self.files["prodigal"] = prodigal_out
+        p = Prodigal(input, output=self.directory, quiet=quiet)
+        self.files["prodigal"] = p.run()
         if "gene" in load_sets:
             self.load_geneset()
         if "prot" in load_sets:
