@@ -343,7 +343,7 @@ class Assembly:
             self.load_protset("prokka")
 
     @timer_wrapper
-    def blastn_seqs(self, db, evalue=10**-6):
+    def blastn_seqs(self, db, evalue=10**-20):
         """
         Blasts geneset.
         :param db: From config.py db
