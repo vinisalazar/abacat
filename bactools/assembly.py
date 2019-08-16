@@ -396,12 +396,17 @@ class Assembly:
             print(i.query)
 
         if write_hits:
-            out = os.path.join(self.directory, self.name + f"_{db}.fasta")
-            self.files[db]["annotation"] = out
-            with open(out, "w") as f:
+            out_f = os.path.join(self.directory, self.name + f"_{db}.fasta")
+            out_h = os.path.join(self.directory, self.name + f"_{db}.hits")
+            self.files[db]["annotation"] = out_f
+            with open(out_f, "w") as f:
                 SeqIO.write(self.geneset[db]["records"], f, "fasta")
 
-            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out}.")
+            with open(out_h, "w") as f:
+                for i in [j.description for j in self.geneset[db]["records"]]:
+                    f.write(i + "\n")
+
+            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out_f}.")
 
 
 @is_fasta_wrapper
