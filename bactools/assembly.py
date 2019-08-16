@@ -265,7 +265,7 @@ class Assembly:
         if self.protset[kind]:
             if records == "list":
                 print(
-                    f"Loaded protein set from {kind.capitalize()} data. It has {len(self.protset[kind]['records'])} genes."
+                    f"Loaded protein set from {kind.capitalize()} data. It has {len(self.protset[kind]['records'])} proteins."
                 )
             else:
                 print(f"Loaded protein set from {kind.capitalize()} data.")
