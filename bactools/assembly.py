@@ -7,14 +7,17 @@ import os
 import pandas as pd
 import subprocess
 from Bio import SeqIO
+from Bio.Blast import NCBIXML
+from Bio.Blast.Applications import NcbiblastnCommandline
 from bactools.bactools_helper import (
     get_records,
     is_fasta,
     is_fasta_wrapper,
-    timer_wrapper,
+    timer_wrapper
 )
 from bactools.prodigal import Prodigal
 from bactools.prokka import prokka
+from bactools.config import CONFIG
 
 
 class Assembly:
@@ -39,6 +42,53 @@ class Assembly:
         if prodigal:
             self.load_prodigal()
 
+    """
+    Sequence stats methods.
+    """
+    def print_seqstats(self):
+        if self.seqstats:
+            print("Sequence stats:\n")
+            for key, value in self.seqstats.items():
+                print(f"{key}\t\t\t{value}")
+        else:
+            try:
+                self.load_seqstats()
+                self.seqstats
+            except:
+                print("Tried loading seqstats, but an error occurred.")
+                raise
+
+    def fnoseqs(self, kind="prodigal", seqs="genes"):
+        """
+        Fast check of number of sequences in file.
+        """
+        with open(self.files[kind][seqs]) as f:
+            records = SeqIO.parse(f, "fasta")
+            len_ = sum(1 for x in records)
+
+        return len_
+
+    def sseqs(self, kind="prodigal", seqs="genes"):
+        """
+        Fast check of size of sequences file.
+        """
+        size = os.stat(self.files[kind][seqs]).st_size
+
+        def format_bytes(
+            size
+        ):  # from https://stackoverflow.com/questions/12523586/python-format-size-application-converting-b-to-kb-mb-gb-tb/37423778
+            # 2**10 = 1024
+            power = 2 ** 10
+            n = 0
+            power_labels = {0: "", 1: "k", 2: "m", 3: "g", 4: "t"}
+            while size > power:
+                size /= power
+                n += 1
+
+            return f"{round(size, 2)} {power_labels[n]}B"
+
+        return format_bytes(size)
+
     def valid_contigs(self, quiet=True):
         if not self.files["contigs"]:
             raise Exception("Must specify input contigs file.")
@@ -47,6 +97,9 @@ class Assembly:
                 print("Your contig file is a valid FASTA file.")
             return True
 
+    """
+    Methods to load data into class instances.
+    """
     def load_contigs(self, contigs):
         """
         This loads the contigs input file. I want to make it a constructor method.
@@ -93,18 +146,6 @@ class Assembly:
             self.seqstats
         except FileNotFoundError:
             raise
-
-    def seqstats(self):
-        if self.seqstats:
-            for key, value in self.seqstats.items():
-                print(f"{key}\t\t{value}")
-        else:
-            try:
-                self.load_seqstats()
-                self.seqstats
-            except:
-                print("Tried loading seqstats, but an error occurred.")
-                raise
 
     def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True, print_=False):
         """
@@ -160,7 +201,7 @@ class Assembly:
         if load_protset:
             self.load_protset()
 
-    def load_geneset(self, kind="prodigal", records="list"):
+    def load_geneset(self, kind="prodigal", records="dict"):
         """
         Loads gene sets unto Assembly.geneset.
         Uses the 'genes' key from the files[kind] dictionary.
@@ -188,7 +229,7 @@ class Assembly:
 
         # Maybe change this if/else block later.
         if self.geneset[kind]:
-            if records == "list":
+            if records != "gen":
                 print(
                     f"Loaded gene set from {kind.capitalize()} data. It has {len(self.geneset[kind]['records'])} genes."
                 )
@@ -224,44 +265,16 @@ class Assembly:
         if self.protset[kind]:
             if records == "list":
                 print(
-                    f"Loaded protein set from {kind.capitalize()} data. It has {len(self.protset[kind]['records'])} genes."
+                    f"Loaded protein set from {kind.capitalize()} data. It has {len(self.protset[kind]['records'])} proteins."
                 )
             else:
                 print(f"Loaded protein set from {kind.capitalize()} data.")
         else:
             print(f"No proteins set found in {origin}.")
 
-    def fnoseqs(self, kind="prodigal", seqs="genes"):
-        """
-        Fast check of number of sequences in file.
-        """
-        with open(self.files[kind][seqs]) as f:
-            records = SeqIO.parse(f, "fasta")
-            len_ = sum(1 for x in records)
-
-        return len_
-
-    def sseqs(self, kind="prodigal", seqs="genes"):
-        """
-        Fast check of size of sequences file.
-        """
-        size = os.stat(self.files[kind][seqs]).st_size
-
-        def format_bytes(
-            size
-        ):  # from https://stackoverflow.com/questions/12523586/python-format-size-application-converting-b-to-kb-mb-gb-tb/37423778
-            # 2**10 = 1024
-            power = 2 ** 10
-            n = 0
-            power_labels = {0: "", 1: "k", 2: "m", 3: "g", 4: "t"}
-            while size > power:
-                size /= power
-                n += 1
-
-            return f"{round(size, 2)} {power_labels[n]}B"
-
-        return format_bytes(size)
-
+    """
+    Run methods. Possess the @timer_wrapper decorator to measure runtime.
+    """
     @timer_wrapper
     def df_prodigal(self, kind="gene"):
         if not self.geneset["prodigal"]:
@@ -328,6 +341,67 @@ class Assembly:
             self.load_geneset("prokka")
         if "prot" in load_sets:
             self.load_protset("prokka")
+
+    @timer_wrapper
+    def blastn_seqs(self, db, evalue=10**-6):
+        """
+        Blasts geneset.
+        :param db: From config.py db
+        :param evalue: evalue to use in Blast
+        """
+        try:
+            db_path = CONFIG["db"][db]
+        except KeyError:
+            print(f"Choose a valid database from {CONFIG['db'][db]}.")
+        query = self.files["prodigal"]["genes"]
+        out = os.path.join(self.directory, self.name + f"_{db}_blast.xml")
+        self.files[db] = dict()
+        self.files[db]["xml"] = out
+        print(f"Blasting {self.name} to {out}.")
+        blastn = NcbiblastnCommandline(
+            query=query,
+            db=db_path,
+            evalue=evalue,
+            out=out,
+            outfmt=5,
+            num_alignments=5,
+            num_threads=CONFIG["threads"]
+        )
+        stdout, stderr = blastn()
+        self.parse_xml_blast(db)
+
+    def parse_xml_blast(self, db, write_hits=True):
+        """
+        Blasts XML out
+        :return:
+        """
+        hits = []
+        with open(self.files[db]["xml"]) as f:
+            blast_records = NCBIXML.parse(f)
+            for i in blast_records:
+                if i.alignments:
+                    i.id = i.query.split(" #")[0]
+                    i.query = " ".join((i.id, i.alignments[0].hit_def))
+                    hits.append(i)
+        print(f"Found {len(hits)} hits.\n")
+
+        self.geneset[db] = dict()
+        self.geneset[db]["origin"] = f"Blast of {self.files['prodigal']['genes']} to {CONFIG['db'][db]}."
+        self.geneset[db]["records"] = list()
+
+        for i in hits:
+            annotation = self.geneset["prodigal"]["records"][i.id]
+            annotation.description = i.query
+            self.geneset[db]["records"].append(annotation)
+            print(i.query)
+
+        if write_hits:
+            out = os.path.join(self.directory, self.name + f"_{db}.fasta")
+            self.files[db]["annotation"] = out
+            with open(out, "w") as f:
+                SeqIO.write(self.geneset[db]["records"], f, "fasta")
+
+            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out}.")
 
 
 @is_fasta_wrapper
