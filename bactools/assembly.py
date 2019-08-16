@@ -347,13 +347,17 @@ class Assembly:
         :param db: From config.py db
         :param evalue: evalue to use in Blast
         """
+        try:
+            db_path = CONFIG["db"][db]
+        except KeyError:
+            print(f"Choose a valid database from {CONFIG['db'][db]}.")
         query = self.files["prodigal"]["genes"]
         out = os.path.join(self.directory, self.name + f"_{db}_blast.out")
         self.files[db] = out
         print(f"Blasting {self.name} to {out}.")
         blastn = NcbiblastnCommandline(
             query=query,
-            db=db,
+            db=db_path,
             evalue=evalue,
             out=out,
             outfmt=5,
