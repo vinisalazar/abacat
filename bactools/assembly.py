@@ -47,8 +47,9 @@ class Assembly:
     """
     def print_seqstats(self):
         if self.seqstats:
+            print("Sequence stats:\n")
             for key, value in self.seqstats.items():
-                print(f"{key}\t\t{value}")
+                print(f"{key}\t\t\t{value}")
         else:
             try:
                 self.load_seqstats()
