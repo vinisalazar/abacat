@@ -357,7 +357,7 @@ class Assembly:
             evalue=evalue,
             out=out,
             outfmt=5,
-            num_alignments=1,
+            num_alignments=5,
             num_threads=CONFIG["threads"]
         )
         stdout, stderr = blastn()
