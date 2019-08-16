@@ -17,10 +17,9 @@ from bactools import Assembly, timer_wrapper
 def main(input_, db):
     assembly = Assembly(input_)
     assembly.load_seqstats()
-    print(assembly.seqstats)
+    assembly.print_seqstats()
     assembly.run_prodigal()
     assembly.blastn_seqs(db=db)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Annotation pipeline. Starts with a contig file.")
