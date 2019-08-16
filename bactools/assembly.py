@@ -7,12 +7,13 @@ import os
 import pandas as pd
 import subprocess
 from Bio import SeqIO
-from Bio.Blast.Applications import NcbiblastpCommandline, NcbiblastxCommandline, NcbiblastnCommandline
+from Bio.Blast import NCBIXML
+from Bio.Blast.Applications import NcbiblastnCommandline
 from bactools.bactools_helper import (
     get_records,
     is_fasta,
     is_fasta_wrapper,
-    timer_wrapper,
+    timer_wrapper
 )
 from bactools.prodigal import Prodigal
 from bactools.prokka import prokka
@@ -44,7 +45,7 @@ class Assembly:
     """
     Sequence stats methods.
     """
-    def seqstats(self):
+    def print_seqstats(self):
         if self.seqstats:
             for key, value in self.seqstats.items():
                 print(f"{key}\t\t{value}")
@@ -199,7 +200,7 @@ class Assembly:
         if load_protset:
             self.load_protset()
 
-    def load_geneset(self, kind="prodigal", records="list"):
+    def load_geneset(self, kind="prodigal", records="dict"):
         """
         Loads gene sets unto Assembly.geneset.
         Uses the 'genes' key from the files[kind] dictionary.
@@ -227,7 +228,7 @@ class Assembly:
 
         # Maybe change this if/else block later.
         if self.geneset[kind]:
-            if records == "list":
+            if records != "gen":
                 print(
                     f"Loaded gene set from {kind.capitalize()} data. It has {len(self.geneset[kind]['records'])} genes."
                 )
@@ -352,8 +353,9 @@ class Assembly:
         except KeyError:
             print(f"Choose a valid database from {CONFIG['db'][db]}.")
         query = self.files["prodigal"]["genes"]
-        out = os.path.join(self.directory, self.name + f"_{db}_blast.out")
-        self.files[db] = out
+        out = os.path.join(self.directory, self.name + f"_{db}_blast.xml")
+        self.files[db] = dict()
+        self.files[db]["xml"] = out
         print(f"Blasting {self.name} to {out}.")
         blastn = NcbiblastnCommandline(
             query=query,
@@ -365,7 +367,40 @@ class Assembly:
             num_threads=CONFIG["threads"]
         )
         stdout, stderr = blastn()
+        self.parse_xml_blast(db)
 
+    def parse_xml_blast(self, db, write_hits=True):
+        """
+        Blasts XML out
+        :return:
+        """
+        hits = []
+        with open(self.files[db]["xml"]) as f:
+            blast_records = NCBIXML.parse(f)
+            for i in blast_records:
+                if i.alignments:
+                    i.id = i.query.split(" #")[0]
+                    i.query = " ".join((i.id, i.alignments[0].hit_def))
+                    hits.append(i)
+        print(f"Found {len(hits)} hits.\n")
+
+        self.geneset[db] = dict()
+        self.geneset[db]["origin"] = f"Blast of {self.files['prodigal']['genes']} to {CONFIG['db'][db]}."
+        self.geneset[db]["records"] = list()
+
+        for i in hits:
+            annotation = self.geneset["prodigal"]["records"][i.id]
+            annotation.description = i.query
+            self.geneset[db]["records"].append(annotation)
+            print(i.query)
+
+        if write_hits:
+            out = os.path.join(self.directory, self.name + f"_{db}.fasta")
+            self.files[db]["annotation"] = out
+            with open(out, "w") as f:
+                SeqIO.write(self.geneset[db]["records"], f, "fasta")
+
+            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out}.")
 
 
 @is_fasta_wrapper
