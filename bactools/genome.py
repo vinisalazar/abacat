@@ -8,7 +8,7 @@ import pandas as pd
 import subprocess
 from Bio import SeqIO
 from Bio.Blast import NCBIXML
-from Bio.Blast.Applications import NcbiblastnCommandline
+from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastpCommandline, NcbiblastxCommandline
 from bactools.bactools_helper import (
     get_records,
     is_fasta,
@@ -343,7 +343,7 @@ class Genome:
             self.load_protset("prokka")
 
     @timer_wrapper
-    def blastn_seqs(self, db, evalue=10**-20):
+    def blastn_seqs(self, db, blast="n", evalue=10**-20):
         """
         Blasts geneset.
         :param db: From config.py db
@@ -358,7 +358,20 @@ class Genome:
         self.files[db] = dict()
         self.files[db]["xml"] = out
         print(f"Blasting {self.name} to {out}.")
-        blastn = NcbiblastnCommandline(
+
+        def blast_method(*args, **kwargs):
+            if blast in ("n", "nucl", "nucleotide", "blastn"):
+                blast_cmd = NcbiblastnCommandline(*args, **kwargs)
+            elif blast in ("p", "prot", "protein", "blastx:"):
+                blast_cmd = NcbiblastpCommandline(*args, **kwargs)
+            elif blast in ("x", "blastx"):
+                blast_cmd = NcbiblastxCommandline(*args, **kwargs)
+            else:
+                raise Exception("Choose a valid option from 'blastn', 'blastp' or 'blastx'.")
+
+            return blast_cmd
+
+        blast_cmd = blast_method(
             query=query,
             db=db_path,
             evalue=evalue,
@@ -367,7 +380,7 @@ class Genome:
             num_alignments=5,
             num_threads=CONFIG["threads"]
         )
-        stdout, stderr = blastn()
+        stdout, stderr = blast_cmd()
         self.parse_xml_blast(db)
 
     def parse_xml_blast(self, db, write_hits=True):
