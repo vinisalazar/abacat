@@ -11,11 +11,11 @@ Example annotation pipeline.
 
 """
 import argparse
-from bactools import Assembly, timer_wrapper
+from bactools import Genome, timer_wrapper
 
 @timer_wrapper
 def main(input_, db):
-    assembly = Assembly(input_)
+    assembly = Genome(input_)
     assembly.load_seqstats()
     assembly.print_seqstats()
     assembly.run_prodigal()

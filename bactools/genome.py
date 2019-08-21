@@ -20,15 +20,15 @@ from bactools.prokka import prokka
 from bactools.config import CONFIG
 
 
-class Assembly:
+class Genome:
     """
-    Assembly, a class containing bacterial assembly data and methods.
+    Genome, a class containing bacterial assembly data and methods.
 
     # TODO: seqstats or Prodigal basic info (length, GC content) for metadata
     """
 
     def __init__(self, contigs=None, prodigal=False, name=None):
-        super(Assembly, self).__init__()
+        super(Genome, self).__init__()
         self.directory = None
         self.name = None
         self.files = dict()
@@ -122,7 +122,7 @@ class Assembly:
     def load_seqstats(self):
         if not self.files["contigs"]:
             raise Exception(
-                "Your Assembly doesn't have an input file! Please provide one."
+                "Your Genome doesn't have an input file! Please provide one."
             )
 
         self.seqstats = dict()
@@ -203,7 +203,7 @@ class Assembly:
 
     def load_geneset(self, kind="prodigal", records="dict"):
         """
-        Loads gene sets unto Assembly.geneset.
+        Loads gene sets unto Genome.geneset.
         Uses the 'genes' key from the files[kind] dictionary.
         """
         if kind == "prodigal":
@@ -240,7 +240,7 @@ class Assembly:
 
     def load_protset(self, kind="prodigal", records="list"):
         """
-        Loads protein sets unto Assembly.protset.
+        Loads protein sets unto Genome.protset.
         Uses the 'protein' key from the files[kind] dictionary.
         """
         if kind == "prodigal":
@@ -418,9 +418,9 @@ def load_from_fasta(fasta_file):
     A valid contigs file.
 
     Returns:
-    An Assembly object.
+    An Genome object.
     """
-    assembly = Assembly()
+    assembly = Genome()
 
     print(f"Loading contigs file from {fasta_file}.")
     assembly.load_contigs(fasta_file)

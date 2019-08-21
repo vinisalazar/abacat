@@ -5,6 +5,6 @@ setuptools.setup(
     version="0.0.1",
     author="Vini Salazar",
     author_email="viniws@gmail.com",
-    description="bactools - Bacterial Assembly Curation Tools",
+    description="bactools - Bacterial Genome Curation Tools",
     packages=setuptools.find_packages(),
 )

@@ -35,8 +35,8 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions.txt"):
             gbk_ = os.path.basename(os.path.splitext(gbk)[0])
             record = SeqIO.parse(f, "genbank")
             try:
-                acc_id = [i for i in next(record).dbxrefs if "Assembly" in i][0].split(
-                    "Assembly:"
+                acc_id = [i for i in next(record).dbxrefs if "Genome" in i][0].split(
+                    "Genome:"
                 )[1]
                 acc.append((gbk_, acc_id))
             except IndexError:
@@ -65,7 +65,7 @@ def extract_assembly_accession(list_of_gbk_files, write_to="accessions.txt"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Used to extract Assembly accessions from a list of .gbk files inside directories."
+        description="Used to extract Genome accessions from a list of .gbk files inside directories."
     )
     parser.add_argument("-i", "--input")
     parser.add_argument("-o", "--output")
