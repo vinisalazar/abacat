@@ -22,7 +22,7 @@ from bactools.config import CONFIG
 
 class Genome:
     """
-    Genome, a class containing bacterial assembly data and methods.
+    Genome, a class containing bacterial genome data and methods.
 
     # TODO: seqstats or Prodigal basic info (length, GC content) for metadata
     """
@@ -420,10 +420,10 @@ def load_from_fasta(fasta_file):
     Returns:
     An Genome object.
     """
-    assembly = Genome()
+    genome = Genome()
 
     print(f"Loading contigs file from {fasta_file}.")
-    assembly.load_contigs(fasta_file)
-    assembly.run_prodigal()
+    genome.load_contigs(fasta_file)
+    genome.run_prodigal()
 
-    return assembly
+    return genome

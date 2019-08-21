@@ -15,11 +15,11 @@ from bactools import Genome, timer_wrapper
 
 @timer_wrapper
 def main(input_, db):
-    assembly = Genome(input_)
-    assembly.load_seqstats()
-    assembly.print_seqstats()
-    assembly.run_prodigal()
-    assembly.blastn_seqs(db=db)
+    genome = Genome(input_)
+    genome.load_seqstats()
+    genome.print_seqstats()
+    genome.run_prodigal()
+    genome.blastn_seqs(db=db)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Annotation pipeline. Starts with a contig file.")
