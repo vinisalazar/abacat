@@ -18,9 +18,11 @@ One or more assembly directories with the directory and all files renamed.
 def ls_and_decompress(assembly_dir, unzip=True):
     """
     This function lists and decompresses the files in the assembly directory.
+    Must be in NCBI ftp file hierarchy. e.g.
+    ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/770/275/GCF_000770275.1_ASM77027v1
 
     Input:
-    Assembly directory.
+    Genome directory.
     Returns:
     List of files, decompressed.
     """
@@ -52,7 +54,7 @@ def parse_assembly_report(assembly_dir):
     Parses information from assembly_report. Uses information to rename.
 
     Input:
-    Assembly directory.
+    Genome directory.
 
     Returns:
     Tuple containing (organism_name, assembly_name, assembly_accession)
@@ -66,12 +68,12 @@ def parse_assembly_report(assembly_dir):
             assembly_report = file
 
     if not assembly_report:
-        return "Assembly report not found, please check your assembly directory.\n"
+        return "Genome report not found, please check your assembly directory.\n"
 
     with open(assembly_report) as report:
         r = [line for line in report.readlines()]
         for line in r:
-            if line.startswith("# Assembly name:"):
+            if line.startswith("# Genome name:"):
                 assembly_name = line.strip().split(":")[1].strip()
 
             if line.startswith("# Organism name:"):
@@ -90,7 +92,7 @@ def rename_assembly(assembly_dir, rename="organism assembly", parse_organism_nam
     Use information from the assembly report to rename our directory and files.
 
     Input:
-    Assembly directory.
+    Genome directory.
 
     Returns:
     Renamed assembly directory and files.
@@ -146,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-i",
         "--input",
-        help="Assembly directory or directory containing multiple assembly directories.",
+        help="Genome directory or directory containing multiple assembly directories.",
     )
     args = parser.parse_args()
 

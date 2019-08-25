@@ -1,6 +1,6 @@
 name = "bactools"
 
-from bactools.assembly import Assembly, load_from_fasta
+from bactools.genome import Genome, load_from_fasta
 from bactools.bactools_helper import (
     get_records,
     is_fasta,

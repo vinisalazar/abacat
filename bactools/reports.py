@@ -39,10 +39,10 @@ def dict_from_report(report):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="A script to put NCBI Assembly reports into a csv file."
+        description="A script to put NCBI Genome reports into a csv file."
     )
     parser.add_argument(
-        "-i", "--input", help="Assembly report or path with assembly_reports."
+        "-i", "--input", help="Genome report or path with assembly_reports."
     )
     parser.add_argument(
         "-o",

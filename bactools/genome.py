@@ -8,7 +8,7 @@ import pandas as pd
 import subprocess
 from Bio import SeqIO
 from Bio.Blast import NCBIXML
-from Bio.Blast.Applications import NcbiblastnCommandline
+from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastpCommandline, NcbiblastxCommandline
 from bactools.bactools_helper import (
     get_records,
     is_fasta,
@@ -20,15 +20,15 @@ from bactools.prokka import prokka
 from bactools.config import CONFIG
 
 
-class Assembly:
+class Genome:
     """
-    Assembly, a class containing bacterial assembly data and methods.
+    Genome, a class containing bacterial genome data and methods.
 
     # TODO: seqstats or Prodigal basic info (length, GC content) for metadata
     """
 
     def __init__(self, contigs=None, prodigal=False, name=None):
-        super(Assembly, self).__init__()
+        super(Genome, self).__init__()
         self.directory = None
         self.name = None
         self.files = dict()
@@ -122,7 +122,7 @@ class Assembly:
     def load_seqstats(self):
         if not self.files["contigs"]:
             raise Exception(
-                "Your Assembly doesn't have an input file! Please provide one."
+                "Your Genome doesn't have an input file! Please provide one."
             )
 
         self.seqstats = dict()
@@ -203,7 +203,7 @@ class Assembly:
 
     def load_geneset(self, kind="prodigal", records="dict"):
         """
-        Loads gene sets unto Assembly.geneset.
+        Loads gene sets unto Genome.geneset.
         Uses the 'genes' key from the files[kind] dictionary.
         """
         if kind == "prodigal":
@@ -240,7 +240,7 @@ class Assembly:
 
     def load_protset(self, kind="prodigal", records="list"):
         """
-        Loads protein sets unto Assembly.protset.
+        Loads protein sets unto Genome.protset.
         Uses the 'protein' key from the files[kind] dictionary.
         """
         if kind == "prodigal":
@@ -343,7 +343,7 @@ class Assembly:
             self.load_protset("prokka")
 
     @timer_wrapper
-    def blastn_seqs(self, db, evalue=10**-6):
+    def blastn_seqs(self, db, blast="n", evalue=10**-20):
         """
         Blasts geneset.
         :param db: From config.py db
@@ -358,7 +358,20 @@ class Assembly:
         self.files[db] = dict()
         self.files[db]["xml"] = out
         print(f"Blasting {self.name} to {out}.")
-        blastn = NcbiblastnCommandline(
+
+        def blast_method(*args, **kwargs):
+            if blast in ("n", "nucl", "nucleotide", "blastn"):
+                blast_cmd = NcbiblastnCommandline(*args, **kwargs)
+            elif blast in ("p", "prot", "protein", "blastx:"):
+                blast_cmd = NcbiblastpCommandline(*args, **kwargs)
+            elif blast in ("x", "blastx"):
+                blast_cmd = NcbiblastxCommandline(*args, **kwargs)
+            else:
+                raise Exception("Choose a valid option from 'blastn', 'blastp' or 'blastx'.")
+
+            return blast_cmd
+
+        blast_cmd = blast_method(
             query=query,
             db=db_path,
             evalue=evalue,
@@ -367,7 +380,7 @@ class Assembly:
             num_alignments=5,
             num_threads=CONFIG["threads"]
         )
-        stdout, stderr = blastn()
+        stdout, stderr = blast_cmd()
         self.parse_xml_blast(db)
 
     def parse_xml_blast(self, db, write_hits=True):
@@ -396,12 +409,17 @@ class Assembly:
             print(i.query)
 
         if write_hits:
-            out = os.path.join(self.directory, self.name + f"_{db}.fasta")
-            self.files[db]["annotation"] = out
-            with open(out, "w") as f:
+            out_f = os.path.join(self.directory, self.name + f"_{db}.fasta")
+            out_h = os.path.join(self.directory, self.name + f"_{db}.hits")
+            self.files[db]["annotation"] = out_f
+            with open(out_f, "w") as f:
                 SeqIO.write(self.geneset[db]["records"], f, "fasta")
 
-            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out}.")
+            with open(out_h, "w") as f:
+                for i in [j.description for j in self.geneset[db]["records"]]:
+                    f.write(i + "\n")
+
+            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out_f}.")
 
 
 @is_fasta_wrapper
@@ -413,12 +431,12 @@ def load_from_fasta(fasta_file):
     A valid contigs file.
 
     Returns:
-    An Assembly object.
+    An Genome object.
     """
-    assembly = Assembly()
+    genome = Genome()
 
     print(f"Loading contigs file from {fasta_file}.")
-    assembly.load_contigs(fasta_file)
-    assembly.run_prodigal()
+    genome.load_contigs(fasta_file)
+    genome.run_prodigal()
 
-    return assembly
+    return genome
