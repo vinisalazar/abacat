@@ -122,7 +122,7 @@ class Genome:
             print(f"Contigs file set as {contigs}")
             self.directory = os.path.dirname(self.files["contigs"])
             print(f"Directory set as {self.directory}")
-            self.name = os.path.splitext(os.path.abspath(contigs))[0]
+            self.name = os.path.splitext(os.path.basename(contigs))[0]
             print(f"Name set as {self.name}")
 
     def load_seqstats(self):
