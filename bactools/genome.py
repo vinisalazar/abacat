@@ -425,6 +425,7 @@ class Genome:
             out_f = os.path.join(self.directory, self.name + f"_{db}.fasta")
             out_h = os.path.join(self.directory, self.name + f"_{db}.hits")
             self.files[db]["annotation"] = out_f
+            self.files[db]["hits"] = out_h
             with open(out_f, "w") as f:
                 SeqIO.write(self.geneset[db]["records"], f, "fasta")
 
