@@ -8,12 +8,16 @@ import pandas as pd
 import subprocess
 from Bio import SeqIO
 from Bio.Blast import NCBIXML
-from Bio.Blast.Applications import NcbiblastnCommandline, NcbiblastpCommandline, NcbiblastxCommandline
+from Bio.Blast.Applications import (
+    NcbiblastnCommandline,
+    NcbiblastpCommandline,
+    NcbiblastxCommandline,
+)
 from bactools.bactools_helper import (
     get_records,
     is_fasta,
     is_fasta_wrapper,
-    timer_wrapper
+    timer_wrapper,
 )
 from bactools.prodigal import Prodigal
 from bactools.prokka import prokka
@@ -45,6 +49,7 @@ class Genome:
     """
     Sequence stats methods.
     """
+
     def print_seqstats(self):
         if self.seqstats:
             print("Sequence stats:\n")
@@ -100,6 +105,7 @@ class Genome:
     """
     Methods to load data into class instances.
     """
+
     def load_contigs(self, contigs):
         """
         This loads the contigs input file. I want to make it a constructor method.
@@ -116,7 +122,7 @@ class Genome:
             print(f"Contigs file set as {contigs}")
             self.directory = os.path.dirname(self.files["contigs"])
             print(f"Directory set as {self.directory}")
-            self.name = os.path.splitext(os.path.abspath(contigs))[0]
+            self.name = os.path.splitext(os.path.basename(contigs))[0]
             print(f"Name set as {self.name}")
 
     def load_seqstats(self):
@@ -136,9 +142,7 @@ class Genome:
                 n = n.split(":")
                 if len(n) == 2:
                     try:
-                        self.seqstats[n[0]] = float(
-                            n[1].strip().replace(" bp", "")
-                        )
+                        self.seqstats[n[0]] = float(n[1].strip().replace(" bp", ""))
                     except (ValueError, IndexError) as error:
                         print(
                             "Something is wrong with the seqstats output. Please check your seqstats command."
@@ -147,7 +151,9 @@ class Genome:
         except FileNotFoundError:
             raise
 
-    def load_prodigal(self, prodigal_out=None, load_geneset=True, load_protset=True, print_=False):
+    def load_prodigal(
+        self, prodigal_out=None, load_geneset=True, load_protset=True, print_=False
+    ):
         """
         Attach Prodigal results to class object.
 
@@ -193,7 +199,9 @@ class Genome:
                 self.files["prodigal"]["scores"] = file_
             else:
                 if print_:
-                    print(f"{file_} apparently is not a P? rodigal output file. Ignoring it.")
+                    print(
+                        f"{file_} apparently is not a P? rodigal output file. Ignoring it."
+                    )
                 pass
 
         if load_geneset:
@@ -275,6 +283,7 @@ class Genome:
     """
     Run methods. Possess the @timer_wrapper decorator to measure runtime.
     """
+
     @timer_wrapper
     def df_prodigal(self, kind="gene"):
         if not self.geneset["prodigal"]:
@@ -343,7 +352,7 @@ class Genome:
             self.load_protset("prokka")
 
     @timer_wrapper
-    def blastn_seqs(self, db, blast="n", evalue=10**-20):
+    def blastn_seqs(self, db, blast="n", evalue=CONFIG["blast"]["evalue"]):
         """
         Blasts geneset.
         :param db: From config.py db
@@ -367,7 +376,9 @@ class Genome:
             elif blast in ("x", "blastx"):
                 blast_cmd = NcbiblastxCommandline(*args, **kwargs)
             else:
-                raise Exception("Choose a valid option from 'blastn', 'blastp' or 'blastx'.")
+                raise Exception(
+                    "Choose a valid option from 'blastn', 'blastp' or 'blastx'."
+                )
 
             return blast_cmd
 
@@ -378,7 +389,7 @@ class Genome:
             out=out,
             outfmt=5,
             num_alignments=5,
-            num_threads=CONFIG["threads"]
+            num_threads=CONFIG["threads"],
         )
         stdout, stderr = blast_cmd()
         self.parse_xml_blast(db)
@@ -399,7 +410,9 @@ class Genome:
         print(f"Found {len(hits)} hits.\n")
 
         self.geneset[db] = dict()
-        self.geneset[db]["origin"] = f"Blast of {self.files['prodigal']['genes']} to {CONFIG['db'][db]}."
+        self.geneset[db][
+            "origin"
+        ] = f"Blast of {self.files['prodigal']['genes']} to {CONFIG['db'][db]}."
         self.geneset[db]["records"] = list()
 
         for i in hits:
@@ -412,6 +425,7 @@ class Genome:
             out_f = os.path.join(self.directory, self.name + f"_{db}.fasta")
             out_h = os.path.join(self.directory, self.name + f"_{db}.hits")
             self.files[db]["annotation"] = out_f
+            self.files[db]["hits"] = out_h
             with open(out_f, "w") as f:
                 SeqIO.write(self.geneset[db]["records"], f, "fasta")
 
@@ -419,7 +433,9 @@ class Genome:
                 for i in [j.description for j in self.geneset[db]["records"]]:
                     f.write(i + "\n")
 
-            print(f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out_f}.")
+            print(
+                f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out_f}."
+            )
 
 
 @is_fasta_wrapper
