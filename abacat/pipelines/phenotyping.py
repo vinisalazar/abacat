@@ -1,6 +1,5 @@
 # import argparse
-from pipelines import annotate
-from abacat import CONFIG, pathways
+from abacat import CONFIG, pathways, pipelines
 
 """
 This module uses the annotate function to predict metabolic pathways using the
@@ -15,7 +14,7 @@ def phenotype(input_, blast="blastx", evalue=10 ** -3):
     :param blast: Type of blast. Default is blastx
     :return:
     """
-    genome = annotate(input_, db="phenotyping", blast=blast, evalue=evalue)
+    genome = pipelines.annotate(input_, db="phenotyping", blast=blast, evalue=evalue)
 
     def pathway_genes(info=True):
         """
