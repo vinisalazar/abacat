@@ -9,8 +9,8 @@ def db(dir_name, file_name):
     :return: Joined path of db_path, dir_name, file_name
     """
     db = os.path.join(db_path, dir_name, file_name)
-    if not os.path.isfile(db):
-        raise Exception(f"Database not found at {db}. Please check if it is a valid path.")
+    # if not os.path.isfile(db):
+    #    raise Exception(f"Database not found at {db}. Please check if it is a valid path.")
     return db
 
 
@@ -27,9 +27,10 @@ CONFIG = {
         "COG": db("COG", "prot2003-2014.fa"),
         "megares": db("megares_v1.01", "megares_database_v1.01.fasta"),
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
-        "pathways": "pipelines/pathways.json"
+        "pathways": os.path.join(os.path.dirname(__file__), "pipelines/pathways.json")
     },
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
 }
+
 pathways = load_pathways(CONFIG["db"]["pathways"])
