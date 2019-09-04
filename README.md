@@ -1,4 +1,4 @@
-#### BACTools - Bacterial Assembly Curation Tools
+#### ABACAT - A Bacterial Annotation and Curation Toolkit
 
 This is is a Python package containing simple command line tools
  for working with bacterial assemblies.
@@ -14,7 +14,7 @@ Dependencies are:
 To install:
 ```
 # create a new env
-conda create -n bactools python=3.6
+conda create -n abacat python=3.6
 
 # install dependencies
 conda install pandas -c conda-forge

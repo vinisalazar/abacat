@@ -19,7 +19,7 @@ import os
 import sys
 import argparse
 import subprocess
-from bactools.bactools_helper import is_fasta, is_fasta_wrapper, timer_wrapper
+from abacat.abacat_helper import is_fasta, is_fasta_wrapper, timer_wrapper
 
 
 class Prodigal:

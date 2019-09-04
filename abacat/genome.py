@@ -13,15 +13,15 @@ from Bio.Blast.Applications import (
     NcbiblastpCommandline,
     NcbiblastxCommandline,
 )
-from bactools.bactools_helper import (
+from abacat.abacat_helper import (
     get_records,
     is_fasta,
     is_fasta_wrapper,
     timer_wrapper,
 )
-from bactools.prodigal import Prodigal
-from bactools.prokka import prokka
-from bactools.config import CONFIG
+from abacat.prodigal import Prodigal
+from abacat.prokka import prokka
+from abacat.config import CONFIG
 
 
 class Genome:
