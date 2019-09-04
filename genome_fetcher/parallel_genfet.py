@@ -5,7 +5,7 @@ This script runs batch GenomeFetch in parallel to fetch queries.
 import os
 import argparse
 from multiprocessing.pool import ThreadPool
-from bactools import CONFIG, GenomeFetch, Query
+from abacat import CONFIG, GenomeFetch, Query
 from Bio import Entrez
 from operator import methodcaller
 
