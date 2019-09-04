@@ -1,6 +1,6 @@
 name = "abacat"
 
-from abacat.genome import Genome, load_from_fasta
+from abacat.genome import Genome, from_fasta, from_json
 from abacat.abacat_helper import get_records, is_fasta, is_fasta_wrapper, timer_wrapper
 from abacat.prodigal import Prodigal, run
 from abacat.config import CONFIG, pathways
