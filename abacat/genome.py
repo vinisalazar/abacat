@@ -20,7 +20,7 @@ from abacat.abacat_helper import (
     timer_wrapper,
 )
 from abacat.prodigal import Prodigal
-from abacat.prokka import prokka
+from abacat.deprecated import prokka
 from abacat.config import CONFIG
 
 
