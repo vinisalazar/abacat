@@ -4,6 +4,7 @@ A file containing our main classes and functions.
 """
 
 import os
+import json
 import pandas as pd
 import subprocess
 from Bio import SeqIO
@@ -21,7 +22,7 @@ from abacat.abacat_helper import (
 )
 from abacat.prodigal import Prodigal
 from abacat.deprecated import prokka
-from abacat.config import CONFIG
+from abacat.config import CONFIG, pathways
 
 
 class Genome:
@@ -31,14 +32,15 @@ class Genome:
     # TODO: seqstats or Prodigal basic info (length, GC content) for metadata
     """
 
-    def __init__(self, contigs=None, prodigal=False, name=None):
+    def __init__(self, contigs=None, prodigal=False, name=None, directory=None):
         super(Genome, self).__init__()
-        self.directory = None
-        self.name = None
+        self.name = name
+        self.directory = directory
+        self.seqstats = None
         self.files = dict()
         self.geneset = dict()
         self.protset = dict()
-        self.seqstats = None
+        self.pathways = None
 
         if contigs:
             self.load_contigs(contigs)
@@ -163,22 +165,7 @@ class Genome:
         if prodigal_out:
             input = os.path.abspath(prodigal_out)
         else:
-            try:
-                if os.path.isdir(
-                    os.path.splitext(os.path.abspath(self.files["contigs"]))[0]
-                    + "_prodigal"
-                ):
-                    input = (
-                        os.path.splitext(os.path.abspath(self.files["contigs"]))[0]
-                        + "_prodigal"
-                    )
-                    print(f"Prodigal folder set as {input}")
-
-            except Exception:
-                print(
-                    "Prodigal output folder not found. Please specify a valid Prodigal output folder."
-                )
-
+            input = self.directory
         # This dictionary is the same as output_files from the prodigal.py script.
         self.files["prodigal"] = dict()
 
@@ -188,21 +175,23 @@ class Genome:
             print(f"{prodigal_out} directory not found.")
 
         for file_ in os.listdir(input):
-            file_ = os.path.join(input, file_)
-            if file_.endswith("_genes.fna"):
-                self.files["prodigal"]["genes"] = file_
-            elif file_.endswith("_proteins.faa"):
-                self.files["prodigal"]["proteins"] = file_
-            elif file_.endswith("_cds.gbk"):
-                self.files["prodigal"]["cds"] = file_
-            elif file_.endswith("_scores.txt"):
-                self.files["prodigal"]["scores"] = file_
-            else:
-                if print_:
-                    print(
-                        f"{file_} apparently is not a P? rodigal output file. Ignoring it."
-                    )
-                pass
+            if file_.startswith(self.name):
+                file_ = os.path.join(input, file_)
+                if file_.endswith("_genes.fna"):
+                    self.files["prodigal"]["genes"] = file_
+                elif file_.endswith("_proteins.faa"):
+                    self.files["prodigal"]["proteins"] = file_
+                elif file_.endswith("_cds.gbk"):
+                    self.files["prodigal"]["cds"] = file_
+                elif file_.endswith("_scores.txt"):
+                    self.files["prodigal"]["scores"] = file_
+                else:
+                    if print_:
+                        print(
+                            f"{file_} apparently is not a P? rodigal output file. Ignoring it."
+                        )
+                    pass
+        print(f"Loaded Prodigal files for {self.name}.")
 
         if load_geneset:
             self.load_geneset()
@@ -224,16 +213,16 @@ class Genome:
 
             except Exception:
                 raise
-        elif kind == "prokka":
-            origin = self.files["prokka"]["genes"]
+        elif kind in CONFIG["db"].keys():
+            origin = self.files[kind]["annotation"]
             try:
-                self.geneset["prokka"] = dict()
-                self.geneset["prokka"]["records"] = get_records(origin, kind=records)
-                self.geneset["prokka"]["origin"] = origin
+                self.geneset[kind] = dict()
+                self.geneset[kind]["records"] = get_records(origin, kind=records)
+                self.geneset[kind]["origin"] = origin
             except Exception:
                 raise
         else:
-            print(f"Passed {kind} kind of geneset input. Please specify a valid input.")
+            print(f"Passed {kind} kind of geneset input. Please specify a valid input from either an annotation or Prodigal file.")
 
         # Maybe change this if/else block later.
         if self.geneset[kind]:
@@ -352,7 +341,7 @@ class Genome:
             self.load_protset("prokka")
 
     @timer_wrapper
-    def blastn_seqs(self, db, blast="n", evalue=CONFIG["blast"]["evalue"]):
+    def blast_seqs(self, db, blast="n", evalue=CONFIG["blast"]["evalue"]):
         """
         Blasts geneset.
         :param db: From config.py db
@@ -437,9 +426,49 @@ class Genome:
                 f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out_f}."
             )
 
+    def to_json(self, out_path=None):
+        """
+        Writes a json output of our genome object, that can be load back into Abacat.
+        We filter the geneset and protset keys because they would take too much space,
+        loading them back when we import the json obj.
+        """
+        json_out = dict()
+        for key, value in self.__dict__.items():
+            if key not in ("geneset", "protset"):
+                json_out[key] = value
+
+        if not out_path:
+            out_path = os.path.join(self.directory, self.name + ".json")
+        with open(out_path, "w") as f:
+            json.dump(json_out, f, indent=3)
+        print(f"Wrote json file of {self.name} to {out_path}.")
+
+    def run_pathways(self, info=True, evalue=10 ** -3):
+        """
+        Takes the phenotyping geneset records and checks them against the pathways object
+        from the CONFIG module.
+        :return: pathway genes, a dict containing pathways as keys and identified records as values.
+        """
+        if "phenotyping" not in self.files.keys():
+            print("Phenotyping files not found. Running BLAST now.")
+            self.blast_seqs(db="phenotyping", blast="blastx", evalue=evalue)
+        elif "phenotyping" not in self.geneset.keys():
+            print("Phenotyping records not found. Loading from BLAST out.")
+            self.load_geneset(kind="phenotyping")
+
+        self.pathways = dict()
+        for k, v in pathways.items():  # Note that this is the 'pathways' imported from config.py
+            self.pathways[k] = []
+            for gene in self.geneset["phenotyping"]["records"]:
+                desc = gene.description.split()[1].split(".")[1]
+                if desc in v:
+                    self.pathways[k].append(gene.description)
+            if info:
+                print(f"Found {len(self.pathways[k])} genes for {k}.")
+
 
 @is_fasta_wrapper
-def load_from_fasta(fasta_file):
+def from_fasta(fasta_file):
     """
     A function to load assemblies and run Prodigal directly.
 
@@ -456,3 +485,26 @@ def load_from_fasta(fasta_file):
     genome.run_prodigal()
 
     return genome
+
+
+def from_json(json_file):
+    """
+    :param json_file: A json file like the one exported from Genome.to_json()
+    :return: A genome instance.
+    """
+    print(f"Loading genome from {json_file}.")
+    with open(json_file) as f:
+        j = json.load(f)
+
+    g = Genome(name=j["name"], directory=j["directory"])
+
+    for attribute in ("files", "seqstats", "pathways"):
+        if attribute in j.keys():
+            setattr(g, attribute, j[attribute])
+            print(f"Loaded {attribute} to {g.name}.")
+
+    g.load_geneset()
+    g.load_protset()
+
+    del j
+    return g
