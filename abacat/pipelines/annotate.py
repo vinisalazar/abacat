@@ -14,7 +14,7 @@ import argparse
 from abacat import Genome, timer_wrapper, CONFIG
 
 
-def annotate(input_, db, blast, evalue):
+def annotate(input_, db, blast, evalue, prodigal=True):
     """
     :param input_: Input file. Must a valid FASTA contigs file (post-assembly).
     :param db: Database name. Must be in abacat.CONFIG.py db parameter.
@@ -24,8 +24,11 @@ def annotate(input_, db, blast, evalue):
     genome = Genome(input_)
     genome.load_seqstats()
     genome.print_seqstats()
-    genome.run_prodigal()
-    genome.blastn_seqs(db=db, blast=blast, evalue=evalue)
+    if prodigal:
+        genome.run_prodigal()
+    else:
+        genome.load_prodigal()
+    genome.blast_seqs(db=db, blast=blast, evalue=evalue)
     return genome
 
 
