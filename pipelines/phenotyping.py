@@ -8,14 +8,14 @@ pathway.json file.
 """
 
 
-def phenotype(input_, blast="blastx"):
+def phenotype(input_, blast="blastx", evalue=10 ** -3):
     """
     Parse an annotation to get phenotype.
     :param input_: Contigs file
     :param blast: Type of blast. Default is blastx
     :return:
     """
-    genome = annotate(input_, db="phenotyping", blast=blast)
+    genome = annotate(input_, db="phenotyping", blast=blast, evalue=evalue)
 
     def pathway_genes(info=True):
         """
@@ -34,10 +34,18 @@ def phenotype(input_, blast="blastx"):
                 print(f"Found {len(pathway_genes[k])} genes for {k};")
 
         return pathway_genes
-    
+
     genome.geneset["phenotyping"]["pathways"] = pathway_genes()
     return genome
 
 
-genome = phenotype("/Users/viniWS/Bio/bactools/data/synecho/GCA_900473895.1_N32/GCA_900473895.1_N32_genomic.fna")
+genome = phenotype(
+    "/Users/viniWS/Bio/bactools/data/synecho/GCA_900473895.1_N32/GCA_900473895.1_N32_genomic.fna"
+)
 target = "/Users/viniWS/Bio/bactools/data/synecho/"
+
+
+from Bio.Blast import NCBIXML
+
+with open(genome.files["phenotyping"]["xml"]) as f:
+    p = list(NCBIXML.parse(f))
