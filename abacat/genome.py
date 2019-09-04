@@ -5,8 +5,9 @@ A file containing our main classes and functions.
 
 import os
 import json
-import pandas as pd
+import logging
 import subprocess
+import pandas as pd
 from Bio import SeqIO
 from Bio.Blast import NCBIXML
 from Bio.Blast.Applications import (
@@ -19,6 +20,13 @@ from abacat.prodigal import Prodigal
 from abacat.deprecated import prokka
 from abacat.config import CONFIG, pathways
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = logging.getLogger(__name__)
 
 class Genome:
     """
@@ -57,7 +65,7 @@ class Genome:
                 self.load_seqstats()
                 self.seqstats
             except:
-                print("Tried loading seqstats, but an error occurred.")
+                logger.error("Tried loading seqstats, but an error occurred.", exc_info=True)
                 raise
 
     def fnoseqs(self, kind="prodigal", seqs="genes"):
@@ -92,11 +100,13 @@ class Genome:
         return format_bytes(size)
 
     def valid_contigs(self, quiet=True):
-        if not self.files["contigs"]:
-            raise Exception("Must specify input contigs file.")
+        try:
+            any(self.files["contigs"])
+        except Exception as e:
+            logger.error("Must specify input contigs file.")
         else:
             if not quiet:
-                print("Your contig file is a valid FASTA file.")
+                logger.info("Your contig file is a valid FASTA file.")
             return True
 
     """
@@ -116,11 +126,11 @@ class Genome:
             )
         else:
             self.files["contigs"] = os.path.abspath(contigs)
-            print(f"Contigs file set as {contigs}")
+            logger.info(f"Contigs file set as {contigs}")
             self.directory = os.path.dirname(self.files["contigs"])
-            print(f"Directory set as {self.directory}")
+            logger.info(f"Directory set as {self.directory}")
             self.name = os.path.splitext(os.path.basename(contigs))[0]
-            print(f"Name set as {self.name}")
+            logger.info(f"Name set as {self.name}")
 
     def load_seqstats(self):
         if not self.files["contigs"]:
@@ -141,8 +151,9 @@ class Genome:
                     try:
                         self.seqstats[n[0]] = float(n[1].strip().replace(" bp", ""))
                     except (ValueError, IndexError) as error:
-                        print(
-                            "Something is wrong with the seqstats output. Please check your seqstats command."
+                        logger.error(
+                            "Something is wrong with the seqstats output. Please check your seqstats command.",
+                            exc_info=True
                         )
             self.seqstats
         except FileNotFoundError:
@@ -182,11 +193,11 @@ class Genome:
                     self.files["prodigal"]["scores"] = file_
                 else:
                     if print_:
-                        print(
-                            f"{file_} apparently is not a P? rodigal output file. Ignoring it."
+                        logger.debug(
+                            f"{file_} apparently is not a Prodigal output file. Ignoring it."
                         )
                     pass
-        print(f"Loaded Prodigal files for {self.name}.")
+        logger.info(f"Loaded Prodigal files for {self.name}.")
 
         if load_geneset:
             self.load_geneset()
@@ -217,18 +228,19 @@ class Genome:
             except Exception:
                 raise
         else:
-            print(
-                f"Passed {kind} kind of geneset input. Please specify a valid input from either an annotation or Prodigal file."
+            logger.error(
+                f"Passed {kind} kind of geneset input. Please specify a valid input from either an annotation or Prodigal file.",
+                exc_info=True
             )
 
         # Maybe change this if/else block later.
         if self.geneset[kind]:
             if records != "gen":
-                print(
+                logger.info(
                     f"Loaded gene set from {kind.capitalize()} data. It has {len(self.geneset[kind]['records'])} genes."
                 )
             else:
-                print(f"Loaded gene set from {kind.capitalize()} data.")
+                logger.info(f"Loaded gene set from {kind.capitalize()} data.")
         else:
             print(f"No gene set found in {origin}.")
 
@@ -258,11 +270,11 @@ class Genome:
 
         if self.protset[kind]:
             if records == "list":
-                print(
+                logger.info(
                     f"Loaded protein set from {kind.capitalize()} data. It has {len(self.protset[kind]['records'])} proteins."
                 )
             else:
-                print(f"Loaded protein set from {kind.capitalize()} data.")
+                logger.info(f"Loaded protein set from {kind.capitalize()} data.")
         else:
             print(f"No proteins set found in {origin}.")
 
@@ -312,7 +324,7 @@ class Genome:
         """
         self.valid_contigs(quiet)
         input = self.files["contigs"]
-        print(
+        logger.info(
             f"Starting Prodigal. Your input file is {input}. Quiet setting is {quiet}."
         )
         p = Prodigal(input, output=self.directory, quiet=quiet)
@@ -329,7 +341,7 @@ class Genome:
         """
         self.valid_contigs(quiet)
         input = self.files["contigs"]
-        print(f"Starting Prokka. Your input file is {input}. Quiet setting is {quiet}.")
+        logger.info(f"Starting Prokka. Your input file is {input}. Quiet setting is {quiet}.")
         prokka_out = prokka(input, **kwargs)
         self.files["prokka"] = prokka_out
         if "gene" in load_sets:
@@ -347,12 +359,12 @@ class Genome:
         try:
             db_path = CONFIG["db"][db]
         except KeyError:
-            print(f"Choose a valid database from {CONFIG['db'][db]}.")
+            logger.error(f"Choose a valid database from {CONFIG['db'][db]}.", exc_info=True)
         query = self.files["prodigal"]["genes"]
         out = os.path.join(self.directory, self.name + f"_{db}_blast.xml")
         self.files[db] = dict()
         self.files[db]["xml"] = out
-        print(f"Blasting {self.name} to {out}.")
+        logger.info(f"Blasting {self.name} to {out}.")
 
         def blast_method(*args, **kwargs):
             if blast in ("n", "nucl", "nucleotide", "blastn"):
@@ -393,7 +405,7 @@ class Genome:
                     i.id = i.query.split(" #")[0]
                     i.query = " ".join((i.id, i.alignments[0].hit_def))
                     hits.append(i)
-        print(f"Found {len(hits)} hits.\n")
+        logger.info(f"Found {len(hits)} hits.\n")
 
         self.geneset[db] = dict()
         self.geneset[db][
@@ -419,7 +431,7 @@ class Genome:
                 for i in [j.description for j in self.geneset[db]["records"]]:
                     f.write(i + "\n")
 
-            print(
+            logger.info(
                 f"Wrote {len(self.geneset[db]['records'])} annotated sequences to {out_f}."
             )
 
@@ -438,7 +450,7 @@ class Genome:
             out_path = os.path.join(self.directory, self.name + ".json")
         with open(out_path, "w") as f:
             json.dump(json_out, f, indent=3)
-        print(f"Wrote json file of {self.name} to {out_path}.")
+        logger.info(f"Wrote json file of {self.name} to {out_path}.")
 
     def run_pathways(self, info=True, evalue=10 ** -3):
         """
@@ -447,10 +459,10 @@ class Genome:
         :return: pathway genes, a dict containing pathways as keys and identified records as values.
         """
         if "phenotyping" not in self.files.keys():
-            print("Phenotyping files not found. Running BLAST now.")
+            logger.info("Phenotyping files not found. Running BLAST now.")
             self.blast_seqs(db="phenotyping", blast="blastx", evalue=evalue)
         elif "phenotyping" not in self.geneset.keys():
-            print("Phenotyping records not found. Loading from BLAST out.")
+            logger.info("Phenotyping records not found. Loading from BLAST out.")
             self.load_geneset(kind="phenotyping")
 
         self.pathways = dict()
@@ -466,7 +478,7 @@ class Genome:
                 if desc in v:
                     self.pathways[k].append(gene.description)
             if info:
-                print(f"Found {len(self.pathways[k])} genes for {k}.")
+                logger.info(f"Found {len(self.pathways[k])} genes for {k}.")
 
 
 @is_fasta_wrapper
@@ -482,7 +494,7 @@ def from_fasta(fasta_file):
     """
     genome = Genome()
 
-    print(f"Loading contigs file from {fasta_file}.")
+    logger.info(f"Loading contigs file from {fasta_file}.")
     genome.load_contigs(fasta_file)
     genome.run_prodigal()
 
@@ -494,7 +506,7 @@ def from_json(json_file):
     :param json_file: A json file like the one exported from Genome.to_json()
     :return: A genome instance.
     """
-    print(f"Loading genome from {json_file}.")
+    logger.info(f"Loading genome from {json_file}.")
     with open(json_file) as f:
         j = json.load(f)
 
@@ -503,7 +515,7 @@ def from_json(json_file):
     for attribute in ("files", "seqstats", "pathways"):
         if attribute in j.keys():
             setattr(g, attribute, j[attribute])
-            print(f"Loaded {attribute} to {g.name}.")
+            logger.info(f"Loaded {attribute} to {g.name}.")
 
     g.load_geneset()
     g.load_protset()
