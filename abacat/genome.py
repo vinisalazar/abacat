@@ -14,12 +14,7 @@ from Bio.Blast.Applications import (
     NcbiblastpCommandline,
     NcbiblastxCommandline,
 )
-from abacat.abacat_helper import (
-    get_records,
-    is_fasta,
-    is_fasta_wrapper,
-    timer_wrapper,
-)
+from abacat.abacat_helper import get_records, is_fasta, is_fasta_wrapper, timer_wrapper
 from abacat.prodigal import Prodigal
 from abacat.deprecated import prokka
 from abacat.config import CONFIG, pathways
@@ -222,7 +217,9 @@ class Genome:
             except Exception:
                 raise
         else:
-            print(f"Passed {kind} kind of geneset input. Please specify a valid input from either an annotation or Prodigal file.")
+            print(
+                f"Passed {kind} kind of geneset input. Please specify a valid input from either an annotation or Prodigal file."
+            )
 
         # Maybe change this if/else block later.
         if self.geneset[kind]:
@@ -457,7 +454,12 @@ class Genome:
             self.load_geneset(kind="phenotyping")
 
         self.pathways = dict()
-        for k, v in pathways.items():  # Note that this is the 'pathways' imported from config.py
+        for (
+            k,
+            v,
+        ) in (
+            pathways.items()
+        ):  # Note that this is the 'pathways' imported from config.py
             self.pathways[k] = []
             for gene in self.geneset["phenotyping"]["records"]:
                 desc = gene.description.split()[1].split(".")[1]

@@ -17,11 +17,29 @@ def main(input_, evalue, json=False):
     g.to_json()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Get pathway genes from a genome. Will write json output file.")
-    parser.add_argument("-i", "--input", help="Input genome. Must be either: a valid contigs file or a json genome file.")
-    parser.add_argument("-e", "--evalue", type=float, default=10 ** -3, help="E-value for BLAST to Pathways DB")
-    parser.add_argument("-j", "--json", type=bool, default=False, help="Specifies that you're using an already processed JSON input.")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Get pathway genes from a genome. Will write json output file."
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        help="Input genome. Must be either: a valid contigs file or a json genome file.",
+    )
+    parser.add_argument(
+        "-e",
+        "--evalue",
+        type=float,
+        default=10 ** -3,
+        help="E-value for BLAST to Pathways DB",
+    )
+    parser.add_argument(
+        "-j",
+        "--json",
+        type=bool,
+        default=False,
+        help="Specifies that you're using an already processed JSON input.",
+    )
     args = parser.parse_args()
 
     @timer_wrapper

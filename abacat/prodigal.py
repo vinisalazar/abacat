@@ -45,11 +45,13 @@ class Prodigal:
 
         if not output:
             output = os.path.join(
-                os.getcwd(), os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal"
+                os.getcwd(),
+                os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal",
             )
         else:
             output = os.path.join(
-                output, os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal"
+                output,
+                os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal",
             )
         self.output = os.path.join(os.path.abspath(output), output.split("/")[-1])
         self.output_files = {
@@ -79,6 +81,7 @@ class Prodigal:
             self.finished = False
 
         return self.output_files
+
 
 @timer_wrapper
 def run(contig_file, output=None, quiet=False):
@@ -116,7 +119,7 @@ if __name__ == "__main__":
     def main():
         if os.path.isfile(input_):
             print(f"Starting script. Your input file is {input}.")
-            p = Prodigal(input_, output = args.output)
+            p = Prodigal(input_, output=args.output)
             p.run()
 
         elif os.path.isdir(input_):
@@ -141,7 +144,9 @@ if __name__ == "__main__":
                     if os.path.isdir(os.path.splitext(contig_file)[0]):
                         success += 1
                 except ValueError:
-                    print(f"Error for {contig_file}. Please check if it is a valid FASTA contigs file.")
+                    print(
+                        f"Error for {contig_file}. Please check if it is a valid FASTA contigs file."
+                    )
                     failure += 1
                     pass
 

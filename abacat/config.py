@@ -2,6 +2,7 @@ import os
 import json
 from pathlib import Path
 
+
 def db(dir_name, file_name):
     """
     :param dir_name: Directory name inside the $db_path variable
@@ -27,7 +28,7 @@ CONFIG = {
         "COG": db("COG", "prot2003-2014.fa"),
         "megares": db("megares_v1.01", "megares_database_v1.01.fasta"),
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
-        "pathways": os.path.join(os.path.dirname(__file__), "pipelines/pathways.json")
+        "pathways": os.path.join(os.path.dirname(__file__), "pipelines/pathways.json"),
     },
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
