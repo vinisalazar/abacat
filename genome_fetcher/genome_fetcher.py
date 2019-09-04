@@ -1,5 +1,5 @@
 import os
-from bactools import timer_wrapper, CONFIG
+from abacat import timer_wrapper, CONFIG
 from Bio import Entrez
 from Bio import SeqIO
 

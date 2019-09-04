@@ -3,7 +3,7 @@ import gzip
 import os
 import shutil
 import sys
-from bactools.bactools_helper import timer_wrapper
+from abacat.abacat_helper import timer_wrapper
 
 """
 A script to rename files in assembly directory structure.

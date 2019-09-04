@@ -8,7 +8,7 @@ import argparse
 import os
 import sys
 from Bio import SeqIO
-from bactools.bactools_helper import is_fasta_wrapper, timer_wrapper
+from abacat.abacat_helper import is_fasta_wrapper, timer_wrapper
 
 
 @is_fasta_wrapper

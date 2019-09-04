@@ -1,6 +1,6 @@
 # import argparse
 from pipelines import annotate
-from bactools import CONFIG, pathways
+from abacat import CONFIG, pathways
 
 """
 This module uses the annotate function to predict metabolic pathways using the
@@ -40,9 +40,9 @@ def phenotype(input_, blast="blastx", evalue=10 ** -3):
 
 
 genome = phenotype(
-    "/Users/viniWS/Bio/bactools/data/synecho/GCA_900473895.1_N32/GCA_900473895.1_N32_genomic.fna"
+    "/Users/viniWS/Bio/abacat/data/synecho/GCA_900473895.1_N32/GCA_900473895.1_N32_genomic.fna"
 )
-target = "/Users/viniWS/Bio/bactools/data/synecho/"
+target = "/Users/viniWS/Bio/abacat/data/synecho/"
 
 
 from Bio.Blast import NCBIXML

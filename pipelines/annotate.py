@@ -11,13 +11,13 @@ Example annotation pipeline.
 
 """
 import argparse
-from bactools import Genome, timer_wrapper, CONFIG
+from abacat import Genome, timer_wrapper, CONFIG
 
 
 def annotate(input_, db, blast, evalue):
     """
     :param input_: Input file. Must a valid FASTA contigs file (post-assembly).
-    :param db: Database name. Must be in bactools.CONFIG.py db parameter.
+    :param db: Database name. Must be in abacat.CONFIG.py db parameter.
     :param blast: Blast method. Choose from 'blastn', 'blastp' or 'blastx'. Default is 'blastn'
     :return:
     """
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         "-db",
         "--database",
         type=str,
-        help="Database name. Must be in bactools.CONFIG.py db parameter.",
+        help="Database name. Must be in abacat.CONFIG.py db parameter.",
     )
     parser.add_argument(
         "-b",
@@ -56,7 +56,7 @@ if __name__ == "__main__":
         "--evalue",
         type=float,
         default=CONFIG["blast"]["evalue"],
-        help="E-value for BLAST. Default is the one set in bactools/config.py",
+        help="E-value for BLAST. Default is the one set in abacat/config.py",
     )
     args = parser.parse_args()
 
