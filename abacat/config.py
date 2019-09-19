@@ -5,6 +5,7 @@ from pathlib import Path
 abacat_path = os.path.dirname(__file__)
 db_path = os.path.join(Path.home(), "Bio/db")
 
+
 def db(dir_name, file_name):
     """
     :param dir_name: Directory name inside the $db_path variable
@@ -33,7 +34,9 @@ CONFIG = {
     },
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
-    "test_contigs": os.path.join(abacat_path, "data/GCF_001021895.1_ASM102189v1_genomic.fna", )
+    "test_contigs": os.path.join(
+        abacat_path, "data/GCF_001021895.1_ASM102189v1_genomic.fna"
+    ),
 }
 
 pathways = load_pathways(CONFIG["db"]["pathways"])
