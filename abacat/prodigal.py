@@ -35,13 +35,14 @@ class Prodigal:
 
     """
 
-    def __init__(self, contigs, output=None, quiet=False):
+    def __init__(self, contigs, output=None, quiet=False, scores=False):
         super(Prodigal, self).__init__()
         self.name = None
         is_fasta(contigs)
         self.contigs = contigs  # an assembled genome contigs file.
         self.quiet = quiet
         self.finished = None
+        self.scores = scores
 
         if not output:
             output = os.path.join(
@@ -58,12 +59,14 @@ class Prodigal:
             "genes": output + "_genes.fna",
             "proteins": output + "_proteins.faa",
             "cds": output + "_cds.gbk",
-            "scores": output + "_scores.txt",
         }
 
         self.cmd = f"prodigal -i {self.contigs} -a {self.output_files['proteins']} \
                     -d {self.output_files['genes']} -o {self.output_files['cds']}"
 
+        if self.scores:
+            self.output_files["scores"] = output + "_scores.txt"
+            self.cmd += f" -s {self.output_files['scores']}"
         if self.quiet:
             self.cmd += " -q"
 
