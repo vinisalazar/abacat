@@ -8,6 +8,26 @@ Module for testing the Genome class and related methods.
 input_contigs = abacat.CONFIG["test_contigs"]
 g = abacat.Genome()
 
+# If you change your test file, be sure to modify this.
+assert_values = {
+    "load_contigs": {
+        "name": path.splitext(path.basename(input_contigs))[0],
+        "directory": path.dirname(input_contigs),
+        "files": {"contigs": path.abspath(input_contigs)},
+    },
+    "sseqs": "2.64 mB",
+    "seqstats": {
+        "Total n": 2.0,
+        "Total seq": 2864278.0,
+        "Avg. seq": 1432139.0,
+        "Median seq": 1432139.0,
+        "N 50": 2839253.0,
+        "Min seq": 25025.0,
+        "Max seq": 2839253.0,
+    },
+}
+
+
 def test_genome_class():
     """
     :return: asserts if the class instantiates correctly.
@@ -21,15 +41,13 @@ def test_load_contigs():
     """
     g.load_contigs(input_contigs)
     errors = []
-    assert_values = {
-        "name": path.splitext(path.basename(input_contigs))[0],
-        "directory": path.dirname(input_contigs),
-        "files": {"contigs": path.abspath(input_contigs)}
-    }
-    for key, value in assert_values.items():
+
+    for key, value in assert_values["load_contigs"].items():
         if getattr(g, key) != value:
             errors.append(key)
-    assert not errors, f"Errors in the following attributes: {errors} when invoking Genome.load_contigs()"
+    assert (
+        not errors
+    ), f"Errors in the following attributes: {errors} when invoking Genome.load_contigs()"
 
 
 def test_invalid_contigs():
@@ -48,16 +66,9 @@ def test_seqstats():
     g.load_contigs(input_contigs)
     g.load_seqstats()
     errors = []
-    correct_values = {  # If you change the test_contigs file, modify this.
-        'Total n': 2.0,
-        'Total seq': 2864278.0,
-        'Avg. seq': 1432139.0,
-        'Median seq': 1432139.0,
-        'N 50': 2839253.0,
-        'Min seq': 25025.0,
-        'Max seq': 2839253.0
-    }
-    for (key1, value1), (key2, value2) in zip(g.seqstats.items(), correct_values.items()):
+    for (key1, value1), (key2, value2) in zip(
+        g.seqstats.items(), assert_values["seqstats"].items()
+    ):
         if key1 != key2 or value1 != value2:
             errors.append(f"{key1} value is {value1} but should be {value2}.")
 
@@ -76,6 +87,13 @@ def test_run_prodigal():
             errors.append(f"{key} file was not found at {value}.")
 
     assert not errors, f"Errors in the following keys:\n{errors}."
+
+
+def test_sseqs():
+    """
+    :return: tests for Genome.sseqs, sequence size method.
+    """
+    assert g.sseqs() == assert_values["sseqs"]
 
 
 def test_load_prodigal():
@@ -103,4 +121,3 @@ def blast_seqs_megares():
             errors.append(f"Could find {key} file at {value}.")
 
     assert not errors, f"Errors with the following files:\n{errors}"
-
