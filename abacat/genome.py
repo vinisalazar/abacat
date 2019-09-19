@@ -468,7 +468,7 @@ class Genome:
 
 
 @is_fasta_wrapper
-def from_fasta(fasta_file):
+def from_fasta(fasta_file, run_prodigal=False, load_prodigal=False):
     """
     A function to load assemblies and run Prodigal directly.
 
@@ -482,7 +482,12 @@ def from_fasta(fasta_file):
 
     print(f"Loading contigs file from {fasta_file}.")
     genome.load_contigs(fasta_file)
-    genome.run_prodigal()
+    if run_prodigal:
+        print(f"Running Prodigal for {genome.name}.")
+        genome.run_prodigal()
+
+    if load_prodigal:
+        genome.load_prodigal()
 
     return genome
 
