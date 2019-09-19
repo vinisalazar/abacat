@@ -3,5 +3,5 @@ abacat.egg-info/
 dist/
 build/
 .idea/
-abacat/data/GCF_001021895.1_ASM102189v1_genomic_*
+abacat/data/*
 .DS_Store
