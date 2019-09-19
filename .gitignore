@@ -7,5 +7,5 @@ refseq/
 use_cases/accession
 .idea/
 genome_fetcher/accession
-abacat/data/
+abacat/data/GCF_001021895.1_ASM102189v1_genomic_*
 .DS_Store
