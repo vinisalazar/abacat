@@ -7,5 +7,5 @@ refseq/
 use_cases/accession
 .idea/
 genome_fetcher/accession
-data/
+abacat/data/
 .DS_Store
