@@ -1,1 +1,2 @@
-include abacat/pipelines/pathways.json
+include abacat/data/pathways.json
+include abacat/data/GCF_001021895.1_ASM102189v1_genomic.fna
