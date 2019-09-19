@@ -54,9 +54,9 @@ def test_invalid_contigs():
     """
     :return: asserts that we return an exception when loading an invalid file as contigs file.
     """
-    g = abacat.Genome()
+    h = abacat.Genome()
     with pytest.raises(Exception):
-        assert g.load_contigs(abacat.CONFIG["db"]["pathways"])
+        assert h.load_contigs(abacat.CONFIG["db"]["pathways"])
 
 
 def test_seqstats():
@@ -110,7 +110,7 @@ def test_load_prodigal():
     assert not errors, f"Errors in the following files:\n{errors}."
 
 
-def blast_seqs_megares():
+def test_blast_seqs_megares():
     """
     :return: Blasts the Genome object against the Megares database.
     """
@@ -121,3 +121,36 @@ def blast_seqs_megares():
             errors.append(f"Could find {key} file at {value}.")
 
     assert not errors, f"Errors with the following files:\n{errors}"
+
+
+def test_to_json():
+    """
+    :return: Asserts the Genome.to_json() method is working.
+    """
+    g.to_json()
+    assert path.isfile(path.join(g.directory, g.name + ".json"))
+
+
+# Methods from the genome.py module but not the Genome class
+def test_from_fasta():
+    """
+    :return: Tests from_fasta import method.
+    """
+    h = abacat.from_fasta(input_contigs)
+    errors = []
+
+    for key, value in assert_values["load_contigs"].items():
+        if getattr(h, key) != value:
+            errors.append(key)
+    assert (
+        not errors
+    ), f"Errors in the following attributes: {errors} when invoking Genome.load_contigs()"
+
+
+def test_from_json():
+    """
+    :return: Tests from_json import method.
+    """
+    h = abacat.from_json(path.join(g.directory, g.name + ".json"))
+    assert type(h) is abacat.genome.Genome
+
