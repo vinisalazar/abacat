@@ -2,10 +2,6 @@ __pycache__
 abacat.egg-info/
 dist/
 build/
-accessions*
-refseq/
-use_cases/accession
 .idea/
-genome_fetcher/accession
 abacat/data/GCF_001021895.1_ASM102189v1_genomic_*
 .DS_Store
