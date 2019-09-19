@@ -35,33 +35,38 @@ class Prodigal:
 
     """
 
-    def __init__(self, contigs, output=None, quiet=False):
+    def __init__(self, contigs, output=None, quiet=False, scores=False):
         super(Prodigal, self).__init__()
         self.name = None
         is_fasta(contigs)
         self.contigs = contigs  # an assembled genome contigs file.
         self.quiet = quiet
         self.finished = None
+        self.scores = scores
 
         if not output:
             output = os.path.join(
-                os.getcwd(), os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal"
+                os.getcwd(),
+                os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal",
             )
         else:
             output = os.path.join(
-                output, os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal"
+                output,
+                os.path.basename(os.path.splitext(self.contigs)[0]) + "_prodigal",
             )
         self.output = os.path.join(os.path.abspath(output), output.split("/")[-1])
         self.output_files = {
             "genes": output + "_genes.fna",
             "proteins": output + "_proteins.faa",
             "cds": output + "_cds.gbk",
-            "scores": output + "_scores.txt",
         }
 
         self.cmd = f"prodigal -i {self.contigs} -a {self.output_files['proteins']} \
                     -d {self.output_files['genes']} -o {self.output_files['cds']}"
 
+        if self.scores:
+            self.output_files["scores"] = output + "_scores.txt"
+            self.cmd += f" -s {self.output_files['scores']}"
         if self.quiet:
             self.cmd += " -q"
 
@@ -79,6 +84,7 @@ class Prodigal:
             self.finished = False
 
         return self.output_files
+
 
 @timer_wrapper
 def run(contig_file, output=None, quiet=False):
@@ -116,7 +122,7 @@ if __name__ == "__main__":
     def main():
         if os.path.isfile(input_):
             print(f"Starting script. Your input file is {input}.")
-            p = Prodigal(input_, output = args.output)
+            p = Prodigal(input_, output=args.output)
             p.run()
 
         elif os.path.isdir(input_):
@@ -141,7 +147,9 @@ if __name__ == "__main__":
                     if os.path.isdir(os.path.splitext(contig_file)[0]):
                         success += 1
                 except ValueError:
-                    print(f"Error for {contig_file}. Please check if it is a valid FASTA contigs file.")
+                    print(
+                        f"Error for {contig_file}. Please check if it is a valid FASTA contigs file."
+                    )
                     failure += 1
                     pass
 
