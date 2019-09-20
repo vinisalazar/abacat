@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
             print("\n")
             print(
-                f"Starting Prodigal. You have {len(files)} files to be processed in {input}:\n"
+                f"Starting Prodigal. You have {len(files)} files to be processed in {input_}:\n"
             )
             print("\n".join(files), "\n")
 
