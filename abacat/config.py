@@ -36,8 +36,9 @@ CONFIG = {
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
     "test_contigs": os.path.join(
-        abacat_path, "GCF_001021895.1_ASM102189v1_genomic.fna"
+        data_dir, "GCF_001021895.1_ASM102189v1_genomic.fna"
     ),
+    "data_dir": data_dir
 }
 
 pathways = load_pathways(CONFIG["db"]["pathways"])
