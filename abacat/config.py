@@ -2,6 +2,9 @@ import os
 import json
 from pathlib import Path
 
+abacat_path = os.path.dirname(__file__)
+db_path = os.path.join(Path.home(), "Bio/db")
+
 
 def db(dir_name, file_name):
     """
@@ -22,16 +25,18 @@ def load_pathways(pathways_json):
     return pathways
 
 
-db_path = os.path.join(Path.home(), "Bio/db")
 CONFIG = {
     "db": {
         "COG": db("COG", "prot2003-2014.fa"),
         "megares": db("megares_v1.01", "megares_database_v1.01.fasta"),
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
-        "pathways": os.path.join(os.path.dirname(__file__), "pipelines/pathways.json"),
+        "pathways": os.path.join(abacat_path, "data/pathways.json"),
     },
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
+    "test_contigs": os.path.join(
+        abacat_path, "data/GCF_001021895.1_ASM102189v1_genomic.fna"
+    ),
 }
 
 pathways = load_pathways(CONFIG["db"]["pathways"])

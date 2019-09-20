@@ -81,13 +81,11 @@ class Genome:
     def sseqs(self, kind="prodigal", seqs="genes"):
         """
         Fast check of size of sequences file.
+        from https://stackoverflow.com/questions/12523586/python-format-size-application-converting-b-to-kb-mb-gb-tb/37423778
         """
         size = os.stat(self.files[kind][seqs]).st_size
 
-        def format_bytes(
-            size
-        ):  # from https://stackoverflow.com/questions/12523586/python-format-size-application-converting-b-to-kb-mb-gb-tb/37423778
-            # 2**10 = 1024
+        def format_bytes(size):
             power = 2 ** 10
             n = 0
             power_labels = {0: "", 1: "k", 2: "m", 3: "g", 4: "t"}
@@ -482,7 +480,7 @@ class Genome:
 
 
 @is_fasta_wrapper
-def from_fasta(fasta_file):
+def from_fasta(fasta_file, run_prodigal=False, load_prodigal=False):
     """
     A function to load assemblies and run Prodigal directly.
 
@@ -496,7 +494,12 @@ def from_fasta(fasta_file):
 
     logger.info(f"Loading contigs file from {fasta_file}.")
     genome.load_contigs(fasta_file)
-    genome.run_prodigal()
+    if run_prodigal:
+        print(f"Running Prodigal for {genome.name}.")
+        genome.run_prodigal()
+
+    if load_prodigal:
+        genome.load_prodigal()
 
     return genome
 
