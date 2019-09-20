@@ -1,5 +1,5 @@
 """
-Create ANI dendrogram using FastANI and Scipy.
+Create ANI dendrograms using FastANI and SciPy.
 """
 
 import argparse
@@ -18,7 +18,7 @@ class ANI_dendrogram:
         fastani_input="fastani_input.txt",
         threads=CONFIG["threads"],
         cmd=None,
-        fraglen=3000,
+        fraglen=300,
         minfrag=50,
         fastani_output=None,
         fastani_dir=CONFIG["data_dir"],
@@ -27,6 +27,8 @@ class ANI_dendrogram:
         color_threshold=30
     ):
         """
+        A class to make ANI dendrograms using FastANI and SciPy.
+
         :param fastani_input: File with path of gene files, one per line, to give to fastANI
         :param threads: Number of threads to use with FastANI
         :param cmd: Command string
@@ -48,6 +50,7 @@ class ANI_dendrogram:
         self.ani_table = ani_table
         self.fig_output = fig_output
         self.color_threshold = color_threshold
+        self.fastani_bin = CONFIG["third_party"]["fastANI"]
         self.df = None  # Pandas dataframe which will be saved to ani_table.
 
 
@@ -59,7 +62,7 @@ class ANI_dendrogram:
         :return: FastANI input with gene files, one per line.
         """
 
-        filename = path.join(self.fastani_dir, self.fastani_input)
+        self.fastani_input = path.join(self.fastani_dir, self.fastani_input)
 
         if kind == "instances":
             for genome in list_of_genomes:
@@ -72,31 +75,34 @@ class ANI_dendrogram:
                     pass
                 else:
                     gene_file = genome["prodigal"]["genes"]
-                    with open(filename, "w") as f:
+                    with open(self.fastani_input, "w") as f:
                         f.write(gene_file + "\n")
         elif kind == "files":
-            for genome in list_of_genomes:
-                with open(filename, "w") as f:
+            with open(self.fastani_input, "w") as f:
+                for genome in list_of_genomes:
+                    f"Writing genome to {self.fastani_input}."
                     f.write(genome + "\n")
 
-        if path.isfile(filename):
-            with open(filename) as f:
+        if path.isfile(self.fastani_input):
+            with open(self.fastani_input) as f:
                 for i, l in enumerate(f):
                     pass
 
-                return f"Wrote {i}/{len(list_of_genomes)} gene files to {filename}."
+            return f"Wrote {i + 1}/{len(list_of_genomes)} gene files to {self.fastani_input}."
+        else:
+            return f"Could write to {self.fastani_input}."
 
     def run(self):
         if not self.fastani_output:
-            self.fastani_output = path.join(self.fastani_dir, f"fastani_out_{self.fraglen}_{self.fraglen}")
+            self.fastani_output = path.join(self.fastani_dir, f"fastani_out_{self.fraglen}_{self.minfrag}")
 
         if not self.cmd:
-            self.cmd = f"FastANI --ql {self.fastani_input} --rl {self.fastani_input} -t {self.threads} -o {self.fastani_output}"
+            self.cmd = f"{self.fastani_bin} --ql {self.fastani_input} --rl {self.fastani_input} -t {self.threads} -o {self.fastani_output}"
 
         if self.fraglen:
-            self.cmd += f" --fraglen {self.fraglen}"
+            self.cmd += f" --fragLen {self.fraglen}"
         if self.minfrag:
-            self.cmd += f" --minfrag {self.minfrag}"
+            self.cmd += f" --minFrag {self.minfrag}"
 
         @timer_wrapper
         def run_():
@@ -112,7 +118,8 @@ class ANI_dendrogram:
         :return: ANI distance table from FastANI output.
         """
         columns = ["Genome_A", "Genome_B", "ANI", "orthologous_fraction", "total_fragments"]
-        df = pd.read_csv(self.fastani_output, columns=columns)
+        df = pd.read_csv(self.fastani_output, sep="\t")
+        df.columns = columns
         df_ = df
         df_.rename(columns={"Genome_A": "Genome_B", "Genome_B": "Genome_A"}, inplace=True)
         df = pd.concat([df, df_], sort=True)
@@ -135,6 +142,8 @@ class ANI_dendrogram:
         """
         :return: Build dendrogram.
         """
+        if not any(self.df):
+            raise Exception("You don't have an ANI table to make a dendrogram. Run make_ani_table() first.")
         X = squareform(abs(self.df - 99.99))
         Z = linkage(X, method="complete", metric="cityblock", optimal_ordering=True)
 
@@ -168,8 +177,9 @@ def augmented_dendrogram(*args, **kwargs):
 
 if __name__ == "__main__":
     run_dir = "/Users/viniWS/Bio/abacat_data/synecho/fastani/"
-    list_of_genomes = [path.join(run_dir, i) for i in run_dir]
-    ani = ANI_dendrogram()
+    list_of_genomes = [path.join(run_dir, i) for i in listdir(run_dir)]
+    ani = ANI_dendrogram(fastani_dir="abacat/data/", fastani_input="fastani_test.txt")
     ani.make_fastani_input(kind="files", list_of_genomes=list_of_genomes)
     ani.run()
+    ani.make_ani_table()
     ani.make_dendrogram()
