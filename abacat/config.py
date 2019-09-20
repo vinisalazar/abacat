@@ -1,6 +1,7 @@
 import os
 import json
 from pathlib import Path
+from abacat.data import data_dir
 
 abacat_path = os.path.dirname(__file__)
 db_path = os.path.join(Path.home(), "Bio/db")
@@ -30,12 +31,12 @@ CONFIG = {
         "COG": db("COG", "prot2003-2014.fa"),
         "megares": db("megares_v1.01", "megares_database_v1.01.fasta"),
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
-        "pathways": os.path.join(abacat_path, "data/pathways.json"),
+        "pathways": os.path.join(data_dir, "pathways.json"),
     },
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
     "test_contigs": os.path.join(
-        abacat_path, "data/GCF_001021895.1_ASM102189v1_genomic.fna"
+        abacat_path, "GCF_001021895.1_ASM102189v1_genomic.fna"
     ),
 }
 
