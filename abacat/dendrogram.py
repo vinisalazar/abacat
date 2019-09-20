@@ -76,7 +76,7 @@ class ANI_dendrogram:
                         f.write(gene_file + "\n")
         elif kind == "files":
             for genome in list_of_genomes:
-                with open(filename) as f:
+                with open(filename, "w") as f:
                     f.write(genome + "\n")
 
         if path.isfile(filename):
