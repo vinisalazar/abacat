@@ -1,6 +1,7 @@
 from Bio import SeqIO
 import datetime
 import time
+import logging
 
 
 def is_fasta(file):
@@ -26,7 +27,7 @@ def is_fasta_wrapper(func):
                 )
             return func(*args, **kwargs)
         except IndexError:
-            print("Please specify an input file.")
+            logging.error("Please specify an input file.", exc_info=True)
 
     return wrapper
 
@@ -56,7 +57,7 @@ def timer_wrapper(func):
 
         end = time.time()
         delta = str(datetime.timedelta(seconds=end - start))
-        print(f"Took {delta}")
+        logging.info(f"Took {delta}")
 
     return wrapper
 
@@ -71,6 +72,6 @@ def get_records(fasta_file, kind="gen"):
         elif kind == "dict":
             records = SeqIO.to_dict(SeqIO.parse(fasta_file, format="fasta"))
         else:
-            print(f"Specified {kind} kind. Please specify a valid kind.")
+            logging.info(f"Specified {kind} kind. Please specify a valid kind.")
 
     return records
