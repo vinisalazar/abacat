@@ -1,4 +1,4 @@
-#### Abacat - A Bacterial genome Comparison and Annotation Toolkit 🥑 
+## Abacat - A Bacterial genome Comparison and Annotation Toolkit 🥑 
 
 Abacat (pronounced *"ABBA-cat"*) is a toolkit for working with bacterial whole genome sequencing
 (WGS) data. It provides Python objects to represent elements which are common to WGS analysis workflows,
@@ -14,29 +14,31 @@ This way users can monitor and tailor their workflow accordingly.
 
 Contributions are welcome and encouraged!
 
-#### Installing
+For an example on how to use Abacat, please look at the [Jupyter tutorial](./tutorial.ipynb). (Note that you will need Jupyter notebook installed.)
+
+## Installing
 
 The easiest way of installing Abacat is using conda:
 ```
 # Create a new env
-$ conda create -n abacat python=3.6
+conda create -n abacat python=3.6
 
 # Install dependencies
-$ conda install pandas pytest matplotlib scipy -c conda-forge  # Python dependencies
-$ conda install biopython prodigal blast fastani -c bioconda   # Third part dependencies
+conda install pandas pytest matplotlib scipy -c conda-forge  # Python dependencies
+conda install biopython prodigal blast fastani -c bioconda   # Third part dependencies
 
 # Clone the package
-$ git clone https://github.com/vinisalazar/abacat.git
+git clone https://github.com/vinisalazar/abacat.git
 
 # Install the package
-$ cd abacat/
-$ pip install .
+cd abacat/
+pip install .
 
 # Test the installation
-$ pytest
+pytest
 ```
 
-##### Docker
+## Docker
 
 We also provide a Docker container which can be easily installed through DockerHub:
 ```

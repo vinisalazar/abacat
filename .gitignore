@@ -6,4 +6,4 @@ build/
 .DS_Store
 abacat/data/genomes/
 .pytest_cache
-tmp_test/
+tmp_test/.ipynb_checkpoints/
