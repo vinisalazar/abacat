@@ -5,10 +5,10 @@ Abacat (pronounced *"ABBA-cat"*) is a toolkit for working with bacterial whole g
 such as coding sequence (CDS) files, containing genes or proteins, alignment methods, or
 statistics about your sequences.
 
-It can be used to annotate freshly generated WGS data. It can also index different BLAST or HMM databases
-for easy alignment searches and produce comparisons using Average Nucleotide Identity (ANI) measurements.
-Lastly, Abacat's classes provides means of tracking *data provenance* in large scale genomics experiments.
-This way users can monitor and tailor their workflow accordingly.
+It can be used to annotate freshly generated WGS data and parse existing, curated NCBI data. It can also index 
+different BLAST or HMM databases for easy alignment searches and produce comparisons using Average Nucleotide Identity 
+(ANI) measurements. Lastly, Abacat's classes provides means of tracking *data provenance* in large scale genomics 
+experiments, in a way users can monitor and tailor their workflow accordingly.
 
 **Disclaimer: Abacat is in active development and therefore we do not provide any sort of guarantee of its results**.
 
