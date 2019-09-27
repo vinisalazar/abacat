@@ -35,7 +35,7 @@ CONFIG = {
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
         "pathways": db("phenotyping", "pathways.json"),
     },
-    "third_party": {"fastANI": "/Users/viniWS/Bio/FastANI/fastANI"},
+    "third_party": {"fastANI": "/opt/conda/bin/fastANI"},  # Docker config
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
     "test_genomes": {
