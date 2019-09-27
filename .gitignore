@@ -4,7 +4,7 @@ dist/
 build/
 .idea/
 .DS_Store
-abacat/data/genomes/*prodigal*
+abacat/data/genomes/
 .pytest_cache
 tmp_test/
 .ipynb_checkpoints/
