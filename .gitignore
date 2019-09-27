@@ -6,4 +6,5 @@ build/
 .DS_Store
 abacat/data/genomes/*prodigal*
 .pytest_cache
-tmp_test/.ipynb_checkpoints/
+tmp_test/
+.ipynb_checkpoints/
