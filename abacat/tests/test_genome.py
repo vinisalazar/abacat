@@ -5,7 +5,7 @@ from os import path
 """
 Module for testing the Genome class and related methods.
 """
-input_contigs = abacat.CONFIG["test_contigs"]["Staphylococcus aureus CA15"]
+input_contigs = abacat.CONFIG["test_genomes"]["Staphylococcus aureus CA15"]
 g = abacat.Genome()
 
 # If you change your test file, be sure to modify this.
