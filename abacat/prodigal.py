@@ -70,7 +70,7 @@ class Prodigal:
         if self.quiet:
             self.cmd += " -q"
 
-    def run(self, print_files=True):
+    def run(self, print_files=False):
         is_fasta_wrapper(self.contigs)
         subprocess.call(self.cmd, shell=True)
 
@@ -87,7 +87,7 @@ class Prodigal:
         return self.output_files
 
 
-def run(contig_file, output=None, quiet=False, print_files=True):
+def run(contig_file, output=None, quiet=False, print_files=False):
     """
     Run outside of class scope.
     """

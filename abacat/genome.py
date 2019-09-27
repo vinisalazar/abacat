@@ -242,7 +242,7 @@ class Genome:
         else:
             print(f"No gene set found in {origin}.")
 
-    def load_protset(self, kind="prodigal", records="list"):
+    def load_protset(self, kind="prodigal", records="dict"):
         """
         Loads protein sets unto Genome.protset.
         Uses the 'protein' key from the files[kind] dictionary.
