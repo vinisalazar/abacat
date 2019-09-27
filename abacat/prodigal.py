@@ -70,15 +70,16 @@ class Prodigal:
         if self.quiet:
             self.cmd += " -q"
 
-    def run(self):
+    def run(self, print_files=True):
         is_fasta_wrapper(self.contigs)
         subprocess.call(self.cmd, shell=True)
 
         if all(os.path.isfile(value) for _, value in self.output_files.items()):
             self.finished = True
-            print(f"Created files at {self.output}:")
-            for _, v in self.output_files.items():
-                print("\t", v)
+            if print_files:
+                print(f"Created files at {self.output}:")
+                for _, v in self.output_files.items():
+                    print("\t", v)
 
         else:
             self.finished = False
@@ -86,13 +87,12 @@ class Prodigal:
         return self.output_files
 
 
-@timer_wrapper
-def run(contig_file, output=None, quiet=False):
+def run(contig_file, output=None, quiet=False, print_files=True):
     """
     Run outside of class scope.
     """
     p = Prodigal(contig_file, output=output, quiet=quiet)
-    p.run()
+    p.run(print_files=print_files)
 
     return p.output_files
 

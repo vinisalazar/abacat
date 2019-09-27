@@ -13,4 +13,4 @@ from abacat.deprecated import (
     dict_from_report,
 )
 from abacat.data import data_dir
-from abacat.dendrogram import ANI_dendrogram
+from abacat.dendrogram import ANIDendrogram
