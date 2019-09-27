@@ -4,3 +4,6 @@ dist/
 build/
 .idea/
 .DS_Store
+abacat/data/genomes/
+.pytest_cache
+tmp_test/

@@ -65,28 +65,34 @@ class ANIDendrogram:
     def import_key_file(self, key_file):
         self.key_df = import_and_validate_key_file(key_file)
 
-    def make_fastani_input(self, list_of_genomes=None, kind="instances"):
+    def make_fastani_input(self, list_of_genomes=None, kind="files"):
         """
         :param list_of_genomes: List of genomes to build file.
-        :kind: 'instances' if instances of Genome class. 'files' if list of files.
+        :param kind: 'instances' if instances of Genome class. 'files' if list of files.
+        :param run: runs Prodigal for genome if genes file present.
         :return: FastANI input with gene files, one per line.
         """
 
+        if not path.isdir(self.output_dir):
+            mkdir(self.output_dir)
+
+        self.fastani_input = path.basename(self.fastani_input)  # Prevents from doubling the directory if running again.
         self.fastani_input = path.join(self.output_dir, self.fastani_input)
 
         if kind == "instances":
+            gene_files = []
             for genome in list_of_genomes:
                 if str(type(genome)) != "<class 'abacat.genome.Genome'>":
                     print(f"{genome} is not a valid Genome instance. Ignoring it.")
                     # raise Exception("Please pass a valid Genome instance")
                     pass
                 elif not genome.files["prodigal"]["genes"]:
-                    print(f"{genome} does not have a genes file. Ignoring it.")
-                    pass
+                    raise Exception(f"{genome} does not have a genes file. Ignoring it.")
                 else:
-                    gene_file = genome["prodigal"]["genes"]
-                    with open(self.fastani_input, "w") as f:
-                        f.write(gene_file + "\n")
+                    gene_file = genome.files["prodigal"]["genes"]
+                    gene_files.append(gene_file)
+            with open(self.fastani_input, "w") as f:
+                f.write("\n".join(gene_files))
         elif kind == "files":
             with open(self.fastani_input, "w") as f:
                 for genome in list_of_genomes:
@@ -195,7 +201,7 @@ class ANIDendrogram:
 
         table = self.df
         if filter_rename:
-            if path.isfile(filter_rename):
+            if not path.isfile(filter_rename):
                 self.import_key_file(filter_rename)
 
             table.rename(
