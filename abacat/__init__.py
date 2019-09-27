@@ -12,5 +12,5 @@ from abacat.deprecated import (
     rename_assembly,
     dict_from_report,
 )
-from abacat.data import data_dir
+from abacat.data import data_dir, genomes_dir, local_db_dir
 from abacat.dendrogram import ANIDendrogram

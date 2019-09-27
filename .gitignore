@@ -3,5 +3,7 @@ abacat.egg-info/
 dist/
 build/
 .idea/
-abacat/data/*
 .DS_Store
+abacat/data/genomes/
+.pytest_cache
+tmp_test/
