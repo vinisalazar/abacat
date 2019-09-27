@@ -3,5 +3,4 @@ abacat.egg-info/
 dist/
 build/
 .idea/
-abacat/data/*
 .DS_Store
