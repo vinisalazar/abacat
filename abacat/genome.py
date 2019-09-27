@@ -367,7 +367,7 @@ class Genome:
         def blast_method(*args, **kwargs):
             if blast in ("n", "nucl", "nucleotide", "blastn"):
                 blast_cmd = NcbiblastnCommandline(*args, **kwargs)
-            elif blast in ("p", "prot", "protein", "blastx:"):
+            elif blast in ("p", "prot", "protein", "blastp"):
                 blast_cmd = NcbiblastpCommandline(*args, **kwargs)
             elif blast in ("x", "blastx"):
                 blast_cmd = NcbiblastxCommandline(*args, **kwargs)
