@@ -21,12 +21,11 @@ from abacat.deprecated import prokka
 from abacat.config import CONFIG, pathways
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    level=logging.INFO, format="%(asctime)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
 
 logger = logging.getLogger(__name__)
+
 
 class Genome:
     """
@@ -65,7 +64,9 @@ class Genome:
                 self.load_seqstats()
                 self.seqstats
             except:
-                logger.error("Tried loading seqstats, but an error occurred.", exc_info=True)
+                logger.error(
+                    "Tried loading seqstats, but an error occurred.", exc_info=True
+                )
                 raise
 
     def fnoseqs(self, kind="prodigal", seqs="genes"):
@@ -139,9 +140,9 @@ class Genome:
         self.seqstats = dict()
 
         try:
-            stats = subprocess.check_output(["seqstats", self.files["contigs"]]).decode(
-                "utf-8"
-            )
+            stats = subprocess.check_output(
+                [CONFIG["third_party"]["seqstats"], self.files["contigs"]]
+            ).decode("utf-8")
             stats = stats.split("\n")
             for n in stats:
                 n = n.split(":")
@@ -151,7 +152,7 @@ class Genome:
                     except (ValueError, IndexError) as error:
                         logger.error(
                             "Something is wrong with the seqstats output. Please check your seqstats command.",
-                            exc_info=True
+                            exc_info=True,
                         )
             self.seqstats
         except FileNotFoundError:
@@ -228,7 +229,7 @@ class Genome:
         else:
             logger.error(
                 f"Passed {kind} kind of geneset input. Please specify a valid input from either an annotation or Prodigal file.",
-                exc_info=True
+                exc_info=True,
             )
 
         # Maybe change this if/else block later.
@@ -339,7 +340,9 @@ class Genome:
         """
         self.valid_contigs(quiet)
         input = self.files["contigs"]
-        logger.info(f"Starting Prokka. Your input file is {input}. Quiet setting is {quiet}.")
+        logger.info(
+            f"Starting Prokka. Your input file is {input}. Quiet setting is {quiet}."
+        )
         prokka_out = prokka(input, **kwargs)
         self.files["prokka"] = prokka_out
         if "gene" in load_sets:
@@ -357,7 +360,9 @@ class Genome:
         try:
             db_path = CONFIG["db"][db]
         except KeyError:
-            logger.error(f"Choose a valid database from {CONFIG['db'][db]}.", exc_info=True)
+            logger.error(
+                f"Choose a valid database from {CONFIG['db'][db]}.", exc_info=True
+            )
         query = self.files["prodigal"]["genes"]
         out = os.path.join(self.directory, self.name + f"_{db}_blast.xml")
         self.files[db] = dict()

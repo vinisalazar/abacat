@@ -6,6 +6,7 @@ from abacat.data import data_dir, genomes_dir, local_db_dir
 abacat_path = os.path.dirname(__file__)
 external_db_path = os.path.join(Path.home(), "Bio/db")
 
+
 def db(dir_name, file_name, external=False):
     """
     :param dir_name: Directory name inside the $db_path variable
@@ -35,17 +36,34 @@ CONFIG = {
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
         "pathways": db("phenotyping", "pathways.json"),
     },
-    "third_party": {"fastANI": "/opt/conda/bin/fastANI"},  # Docker config
+    "third_party": {
+        "fastANI": "/home/vini/anaconda3/pkgs/fastani-1.1-h4ef8376_0/bin/fastANI",
+        "seqstats": "/home/vini/code/seqstats/seqstats",
+    },  # Docker config
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
     "test_genomes": {
-        "Staphylococcus aureus CA15": os.path.join(genomes_dir, "GCF_001021895.1_ASM102189v1_genomic.fna"),
-        "Staphylococcus aureus KUN1163": os.path.join(genomes_dir, "GCF_008619075.1_ASM861907v1_genomic.fna"),
-        "Staphylococcus epidermidis ATCC 12228": os.path.join(genomes_dir, "GCF_000007645.1_ASM764v1_genomic.fna"),
-        "Synechococcus elongatus PCC 6301": os.path.join(genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna"),
-        "Synechococcus elongatus PCC 7942": os.path.join(genomes_dir, "GCF_000012525.1_ASM1252v1_genomic.fna"),
-        "Prochloroccocus marinus MIT 9313": os.path.join(genomes_dir, "GCF_000011485.1_ASM1148v1_genomic.fna"),
-        "Escherichia coli ATCC 1175": os.path.join(genomes_dir, "GCF_003697165.2_ASM369716v2_genomic.fna"),
+        "Staphylococcus aureus CA15": os.path.join(
+            genomes_dir, "GCF_001021895.1_ASM102189v1_genomic.fna"
+        ),
+        "Staphylococcus aureus KUN1163": os.path.join(
+            genomes_dir, "GCF_008619075.1_ASM861907v1_genomic.fna"
+        ),
+        "Staphylococcus epidermidis ATCC 12228": os.path.join(
+            genomes_dir, "GCF_000007645.1_ASM764v1_genomic.fna"
+        ),
+        "Synechococcus elongatus PCC 6301": os.path.join(
+            genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna"
+        ),
+        "Synechococcus elongatus PCC 7942": os.path.join(
+            genomes_dir, "GCF_000012525.1_ASM1252v1_genomic.fna"
+        ),
+        "Prochloroccocus marinus MIT 9313": os.path.join(
+            genomes_dir, "GCF_000011485.1_ASM1148v1_genomic.fna"
+        ),
+        "Escherichia coli ATCC 1175": os.path.join(
+            genomes_dir, "GCF_003697165.2_ASM369716v2_genomic.fna"
+        ),
     },
     "data_dir": data_dir,
 }
