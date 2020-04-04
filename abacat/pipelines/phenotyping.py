@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Find phenotyping genes in a genome. Can be used with either a JSON or contigs input.
 """

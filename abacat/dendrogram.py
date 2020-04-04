@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Create ANI dendrograms using FastANI and SciPy.
 

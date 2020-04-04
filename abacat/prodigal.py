@@ -1,3 +1,4 @@
+!#/usr/bin/env python
 """
 A script to call Prodigal to predict both genes and proteins.
 
