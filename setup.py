@@ -8,11 +8,11 @@ setuptools.setup(
     description="abacat - A BActerial genome Curation and Annotation Toolkit",
     url="https://github.com/vinisalazar/abacat",
     classifiers=[
-        "Development Status :: 3 - alpha",
-        "Intended Audience :: Command line users",
-        "Topic :: Bioinformatics :: Genome Manipulation",
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: >= 3.6"
+        "Programming Language :: Python :: 3.6"
     ],
     packages=setuptools.find_packages(),
     include_package_data=True,
