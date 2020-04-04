@@ -139,18 +139,18 @@ class ANIDendrogram:
             "orthologous_fraction",
             "total_fragments",
         ]
-        df = pd.read_csv(self.fastani_output, sep="\t")
+        df = pd.read_csv(self.fastani_output, sep="\t", header=None)
         df.columns = columns
 
         # Creating the concatenated data frame
-        df_ = df
-        df_ = df_.rename(columns={"Genome_A": "Genome_B", "Genome_B": "Genome_A"})
+        df_ = df.copy()
+        df_.rename(columns={"Genome_A": "Genome_B", "Genome_B": "Genome_A"}, inplace=True)
         df_t = pd.concat([df, df_], sort=True)
         df_t.ANI = round(df_t.ANI, 2)
 
         # Switching from 'long' form to a distance matrix
         df = pd.pivot_table(
-            df_t, values="ANI", index=("Genome_A"), columns=("Genome_B")
+            df_t, values="ANI", index=("Genome_B"), columns=("Genome_A")
         )
         del df_
         del df_t  # Don't need them anymore
@@ -173,9 +173,8 @@ class ANIDendrogram:
         ]
 
         if not self.ani_table:
-            self.ani_table = "ani_table.txt"
+            self.ani_table = path.join(self.output_dir, self.ani_table)
 
-        self.ani_table = path.join(self.output_dir, self.ani_table)
         self.df = df
         print(
             f"Writing ANI distance matrix to {path.abspath(self.ani_table)}. It is {df.shape[0]} by {df.shape[1]}."

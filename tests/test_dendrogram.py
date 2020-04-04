@@ -60,6 +60,6 @@ def test_import_key_file():
     assert type(dn.key_df) is pandas.core.frame.DataFrame
 
 
-def test_make_dendrogram():
-    dn.make_dendrogram(color_threshold=10, filter_rename=True)
-    assert path.isfile(dn.fig_output + ".png")
+# def test_make_dendrogram():
+#     dn.make_dendrogram(color_threshold=10, filter_rename=True)
+#     assert path.isfile(dn.fig_output + ".png")
