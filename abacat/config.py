@@ -1,5 +1,6 @@
 import os
 import json
+import subprocess
 from pathlib import Path
 from abacat.data import data_dir, genomes_dir, local_db_dir
 
@@ -11,6 +12,7 @@ def db(dir_name, file_name, external=False):
     """
     :param dir_name: Directory name inside the $db_path variable
     :param file_name: File name inside $dir_name. Usually a fasta file.
+    :param external: True if the database is not packaged within Abacat
     :return: Joined path of db_path, dir_name, file_name
     """
     if not external:
@@ -29,6 +31,24 @@ def load_phenotyping(phenotyping_json):
     return phenotyping
 
 
+def get_third_party_bins(binaries=("fastANI", "seqstats")):
+    """
+    Find path of third party binaries
+    :param binaries: List or tuple with name of binaries.
+    :return: dict with keys as the name of the binaries, values as the path in the system.
+    """
+    bins = dict()
+    def get_bin(bin_name):
+        out = subprocess.Popen(["which", bin_name], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout, stderr = out.communicate()
+        return Path(stdout.strip().decode("utf-8"))
+
+    for bin in binaries:
+        bins[bin] = get_bin(bin)
+
+    return bins
+
+
 CONFIG = {
     "db": {
         "COG": db("COG", "prot2003-2014.fa", external=True),
@@ -36,10 +56,7 @@ CONFIG = {
         "phenotyping": db("phenotyping", "phenotyping.fasta"),
         "pathways": db("phenotyping", "pathways.json"),
     },
-    "third_party": {
-        "fastANI": "/home/vini/anaconda3/pkgs/fastani-1.1-h4ef8376_0/bin/fastANI",
-        "seqstats": "/home/vini/code/seqstats/seqstats",
-    },  # Docker config
+    "third_party": get_third_party_bins(),  # Docker config
     "threads": int(os.cpu_count() / 2),
     "blast": {"evalue": 10 ** -20},
     "test_genomes": {
