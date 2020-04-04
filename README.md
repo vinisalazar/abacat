@@ -24,8 +24,7 @@ The easiest way of installing Abacat is using conda:
 conda create -n abacat python=3.6
 
 # Install dependencies
-conda install pandas pytest matplotlib scipy -c conda-forge  # Python dependencies
-conda install biopython prodigal blast fastani -c bioconda   # Third part dependencies
+conda install biopython prodigal blast fastani -c bioconda
 
 # Clone the package
 git clone https://github.com/vinisalazar/abacat.git
@@ -38,14 +37,6 @@ pip install .
 pytest
 ```
 
-## Docker
-
-We also provide a Docker container which can be easily installed through DockerHub:
-```
-docker pull viniws/abacat:latest
-
-docker run -it abacat
-```
 
 Like most bioinformatics workflows, Abacat has quite a few dependencies. Here are the main ones:
 
