@@ -59,20 +59,20 @@ def test_invalid_contigs():
         assert h.load_contigs(abacat.CONFIG["db"]["pathways"])
 
 
-def test_seqstats():
-    """
-    :return: Tests whether seqstats values return true.
-    """
-    g.load_contigs(input_contigs)
-    g.load_seqstats()
-    errors = []
-    for (key1, value1), (key2, value2) in zip(
-        g.seqstats.items(), assert_values["seqstats"].items()
-    ):
-        if key1 != key2 or value1 != value2:
-            errors.append(f"{key1} value is {value1} but should be {value2}.")
-
-    assert not errors, f"Errors in the following keys:\n{errors}"
+# def test_seqstats():
+#    """
+#    :return: Tests whether seqstats values return true.
+#    """
+#    g.load_contigs(input_contigs)
+#    g.load_seqstats()
+#    errors = []
+#    for (key1, value1), (key2, value2) in zip(
+#        g.seqstats.items(), assert_values["seqstats"].items()
+#    ):
+#        if key1 != key2 or value1 != value2:
+#            errors.append(f"{key1} value is {value1} but should be {value2}.")
+#
+#    assert not errors, f"Errors in the following keys:\n{errors}"
 
 
 def test_run_prodigal():
@@ -153,4 +153,3 @@ def test_from_json():
     """
     h = abacat.from_json(path.join(g.directory, g.name + ".json"))
     assert type(h) is abacat.genome.Genome
-

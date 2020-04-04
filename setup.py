@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="abacat",
-    version="0.0.3a",
+    version="0.0.4a",
     author="Vini Salazar",
     author_email="viniws@gmail.com",
     description="abacat - A BActerial genome Curation and Annotation Toolkit",
