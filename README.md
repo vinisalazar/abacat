@@ -23,17 +23,12 @@ For an example on how to use Abacat, please look at the [Jupyter tutorial](./tut
 The easiest way of installing Abacat is using conda:
 ```
 # Create a new env
-conda create -n abacat python=3.6
+conda create -n abacat abacat -c bioconda
 
-# Install dependencies
-conda install biopython prodigal blast fastani -c bioconda
+# Alternatively, you can install with pip
+pip install abacat  
 
-# Clone the package
-git clone https://github.com/vinisalazar/abacat.git
-
-# Install the package
-cd abacat/
-pip install .
+# If you install with pip, remember you'll need the third party packages listed below
 
 # Test the installation
 pytest
