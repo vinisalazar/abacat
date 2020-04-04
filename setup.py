@@ -6,6 +6,7 @@ setuptools.setup(
     author="Vini Salazar",
     author_email="viniws@gmail.com",
     description="abacat - A BActerial genome Curation and Annotation Toolkit",
+    long_description="Abacat (pronounced "ABBA-cat") is a toolkit for working with bacterial whole genome sequencing (WGS) data. It provides Python objects to represent elements which are common to WGS analysis workflows, such as coding sequence (CDS) files, containing genes or proteins, alignment methods, or statistics about your sequences.",
     url="https://github.com/vinisalazar/abacat",
     classifiers=[
         "Development Status :: 3 - Alpha",
