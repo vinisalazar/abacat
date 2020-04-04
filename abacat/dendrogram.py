@@ -26,7 +26,6 @@ class ANIDendrogram:
         threads=CONFIG["threads"],
         cmd=None,
         fraglen=300,
-        minfrag=50,
         fastani_output=None,
         output_dir="ani_output/",
         ani_table=None,
@@ -40,7 +39,6 @@ class ANIDendrogram:
         :param threads: Number of threads to use with FastANI
         :param cmd: Command string
         :param fraglen: Length of fragments for FastANI. Default 300
-        :param minfrag: Minimum number of fragments to trust ANI. Default 50
         :param fastani_output: FastANI file name
         :param output_dir: Output directory name
         :param ani_table: Table with FastANI results
@@ -53,7 +51,6 @@ class ANIDendrogram:
         self.threads = threads
         self.cmd = cmd
         self.fraglen = fraglen
-        self.minfrag = minfrag
         self.fastani_output = fastani_output
         self.output_dir = output_dir
         self.ani_table = ani_table
@@ -111,7 +108,7 @@ class ANIDendrogram:
     def run(self):
         if not self.fastani_output:
             self.fastani_output = path.join(
-                self.output_dir, f"fastani_out_{self.fraglen}_{self.minfrag}"
+                self.output_dir, f"fastani_out_{self.fraglen}"
             )
 
         if not self.cmd:
@@ -119,8 +116,6 @@ class ANIDendrogram:
 
         if self.fraglen:
             self.cmd += f" --fragLen {self.fraglen}"
-        if self.minfrag:
-            self.cmd += f" --minFrag {self.minfrag}"
 
         @timer_wrapper
         def run_():
@@ -334,13 +329,6 @@ if __name__ == "__main__":
             default=300,
         )
         parser.add_argument(
-            "-mf",
-            "--minFrag",
-            help="Minimum amount of fragments to trust FastANI. Default is 50 (FastANI's default).",
-            type=int,
-            default=50,
-        )
-        parser.add_argument(
             "-t",
             "--threads",
             help="Number of threads to use. Default is set in Abacat config file.",
@@ -411,7 +399,7 @@ if __name__ == "__main__":
             output_dir=args.output,
             fastani_input=fastani_input,
             fastani_output=path.join(
-                args.output, f"fastani_out_{args.fragLen}_{args.minFrag}.tsv"
+                args.output, f"fastani_out_{args.fragLen}.tsv"
             ),
             threads=args.threads,
         )
