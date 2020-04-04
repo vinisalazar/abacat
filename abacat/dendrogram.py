@@ -112,7 +112,7 @@ class ANIDendrogram:
             )
 
         if not self.cmd:
-            self.cmd = f"{self.fastani_bin} --ql {self.fastani_input} --rl {self.fastani_input} -t {self.threads} -o {self.fastani_output}"
+            self.cmd = f"{self.fastani_bin} --ql {self.fastani_input} --rl {self.fastani_input} -t {self.threads} -o {self.fastani_output} --minFraction 0"
 
         if self.fraglen:
             self.cmd += f" --fragLen {self.fraglen}"
@@ -173,7 +173,7 @@ class ANIDendrogram:
         ]
 
         if not self.ani_table:
-            self.ani_table = path.join(self.output_dir, self.ani_table)
+            self.ani_table = path.join(self.output_dir, "ani_table.txt")
 
         self.df = df
         print(
