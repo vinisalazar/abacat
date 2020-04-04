@@ -18,9 +18,9 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     scripts=[
         "abacat/prodigal.py",
-        "pipelines/annotate.py",
-        "pipelines/phenotyping.py",
-        "deprecated/prokka.py",
+        "abacat/pipelines/annotate.py",
+        "abacat/pipelines/phenotyping.py",
+        "abacat/deprecated/prokka.py",
     ],
     include_package_data=True,
     python_requires=">=3.6",
