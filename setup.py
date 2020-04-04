@@ -22,6 +22,7 @@ setuptools.setup(
         "pandas",
         "argparse",
         "matplotlib",
-        "scipy"
+        "scipy",
+        "pytest"
     ]
 )
