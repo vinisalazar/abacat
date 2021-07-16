@@ -1,6 +1,9 @@
-## 🥑 Abacat - A Bacterial genome Comparison and Annotation Toolkit 
+### Attention
+This repository is now archived and deprecated in favour of [BioProv](https://github.com/vinisalazar/bioprov).
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3740294.svg)](https://doi.org/10.5281/zenodo.3740294)
+---
+
+#### 🥑 Abacat - A Bacterial genome Comparison and Annotation Toolkit 
 
 Abacat (pronounced *"ABBA-cat"*) is a toolkit for working with bacterial whole genome sequencing
 (WGS) data. It provides Python objects to represent elements which are common to WGS analysis workflows,
